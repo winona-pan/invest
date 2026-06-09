@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>理財地圖 · 投資與資產管理系統學習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EBEDEC; --surface:#FFFFFF; --surface-2:#F4F5F3;
+  --ink:#16293B; --ink-2:#4A5C6B; --ink-3:#7A8893;
+  --line:#D9DDDB; --line-2:#E8EAE8;
+  --navy:#0E2236; --navy-2:#1A3A56;
+  --gold:#B0801F; --gold-soft:#EADfC2; --gold-bg:#FBF6E9;
+  --green:#2C7A57; --green-bg:#E8F2EC;
+  --red:#B23A26; --red-bg:#F7E9E5;
+  --blue:#2E5E8C; --blue-bg:#E9F0F6;
+  --display:'Fraunces','Noto Serif TC',serif;
+  --body:'Noto Sans TC','Inter',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --r:14px; --shadow:0 1px 2px rgba(14,34,54,.05),0 8px 24px rgba(14,34,54,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body); background:var(--bg); color:var(--ink);
+  line-height:1.75; font-size:16px; -webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--line-2) 1px,transparent 1px),linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
+  background-size:26px 26px; background-position:-1px -1px;
+}
+.app{display:flex; min-height:100vh}
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+  width:288px; flex-shrink:0; background:var(--navy); color:#C9D6E0;
+  position:fixed; top:0; left:0; height:100vh; overflow-y:auto; z-index:40;
+  display:flex; flex-direction:column;
+}
+.brand{padding:24px 22px 18px; border-bottom:1px solid rgba(255,255,255,.08)}
+.brand .logo{display:flex; align-items:center; gap:10px}
+.brand .mark{
+  width:30px;height:30px;border:1.5px solid var(--gold);border-radius:7px;
+  display:grid;place-items:center;font-family:var(--mono);color:var(--gold);
+  font-weight:600;font-size:15px;flex-shrink:0;
+}
+.brand h1{font-family:var(--display);color:#fff;font-size:20px;font-weight:600;line-height:1.2}
+.brand .sub{font-size:11.5px;color:#7E93A4;margin-top:7px;letter-spacing:.04em}
+
+.progress-box{padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.08)}
+.progress-box .pl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.progress-box .pl span:first-child{font-size:11px;color:#7E93A4;letter-spacing:.06em;text-transform:uppercase}
+.progress-box .pl span:last-child{font-family:var(--mono);font-size:13px;color:var(--gold)}
+.bar{height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--gold);border-radius:3px;width:0;transition:width .5s ease}
+
+.nav{padding:10px 0 24px;flex:1}
+.nav .sec-label{font-size:10.5px;color:#5E7385;letter-spacing:.12em;text-transform:uppercase;padding:16px 22px 7px}
+.nav-item{
+  display:flex;align-items:center;gap:11px;padding:9px 22px;cursor:pointer;
+  font-size:14.5px;color:#B6C5D1;border-left:2.5px solid transparent;transition:.15s;
+}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.nav-item.active{background:rgba(176,128,31,.13);color:#fff;border-left-color:var(--gold)}
+.nav-item .ix{font-family:var(--mono);font-size:12px;color:#5E7385;width:20px}
+.nav-item.active .ix{color:var(--gold)}
+.nav-item .check{margin-left:auto;width:15px;height:15px;flex-shrink:0;opacity:0}
+.nav-item.done .check{opacity:1}
+.nav-sub{font-size:13px;padding:7px 22px 7px 50px;color:#92A4B2;cursor:pointer;display:flex;align-items:center;gap:8px;border-left:2.5px solid transparent}
+.nav-sub:hover{color:#fff}
+.nav-sub.active{color:#fff;background:rgba(255,255,255,.04);border-left-color:var(--gold)}
+.nav-sub .dot{width:5px;height:5px;border-radius:50%;background:#3E556A;flex-shrink:0}
+.nav-sub.done .dot{background:var(--green)}
+.nav-sub.active .dot{background:var(--gold)}
+
+/* ---------- Main ---------- */
+.main{margin-left:288px;flex:1;min-width:0}
+.topbar{
+  position:sticky;top:0;z-index:30;background:rgba(235,237,236,.88);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);padding:13px 40px;display:flex;align-items:center;gap:16px;
+}
+.menu-btn{display:none;background:none;border:1px solid var(--line);border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:18px;color:var(--ink)}
+.crumb{font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+.search-wrap{margin-left:auto;position:relative}
+.search-wrap input{
+  font-family:var(--body);width:230px;padding:9px 14px 9px 36px;border:1px solid var(--line);
+  border-radius:9px;background:var(--surface);font-size:14px;color:var(--ink);transition:.2s;
+}
+.search-wrap input:focus{outline:none;border-color:var(--gold);width:280px;box-shadow:0 0 0 3px var(--gold-bg)}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+
+.content{padding:46px 40px 90px;max-width:880px;margin:0 auto}
+
+/* page transitions */
+.page{display:none;animation:fade .35s ease}
+.page.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- Home / Map ---------- */
+.hero{margin-bottom:48px}
+.hero .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.hero h2{font-family:var(--display);font-size:clamp(34px,5vw,52px);line-height:1.08;font-weight:600;letter-spacing:-.01em;margin-bottom:18px}
+.hero h2 em{font-style:italic;color:var(--gold)}
+.hero p{font-size:17px;color:var(--ink-2);max-width:560px}
+.hero-stats{display:flex;gap:34px;margin-top:30px;flex-wrap:wrap}
+.hero-stats .s{}
+.hero-stats .n{font-family:var(--mono);font-size:26px;color:var(--ink);font-weight:500}
+.hero-stats .l{font-size:12px;color:var(--ink-3);margin-top:2px}
+
+.map-title{font-family:var(--display);font-size:22px;font-weight:600;margin:8px 0 4px}
+.map-sub{font-size:14px;color:var(--ink-3);margin-bottom:24px}
+.map{display:flex;flex-direction:column;gap:0;position:relative}
+.map::before{content:"";position:absolute;left:27px;top:34px;bottom:34px;width:2px;background:var(--line);z-index:0}
+.mcard{
+  display:flex;gap:20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:20px 22px;cursor:pointer;transition:.2s;position:relative;z-index:1;margin-bottom:16px;box-shadow:var(--shadow);
+}
+.mcard:hover{transform:translateX(4px);border-color:var(--gold)}
+.mcard .node{
+  width:54px;height:54px;border-radius:50%;background:var(--navy);color:#fff;flex-shrink:0;
+  display:grid;place-items:center;font-family:var(--mono);font-size:17px;font-weight:600;border:3px solid var(--bg);
+}
+.mcard.complete .node{background:var(--green)}
+.mcard .mc-body{flex:1;min-width:0}
+.mcard h3{font-family:var(--display);font-size:19px;font-weight:600;margin-bottom:3px}
+.mcard .mc-sub{font-size:13.5px;color:var(--ink-2);margin-bottom:11px}
+.mcard .mc-meta{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--ink-3);font-family:var(--mono)}
+.mcard .mbar{flex:1;max-width:160px;height:4px;background:var(--line-2);border-radius:2px;overflow:hidden}
+.mcard .mbar > i{display:block;height:100%;background:var(--gold)}
+
+.tools-cta{margin-top:36px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:620px){.tools-cta{grid-template-columns:1fr}}
+.tcard{background:var(--navy);color:#fff;border-radius:var(--r);padding:24px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.tcard:hover{transform:translateY(-3px)}
+.tcard.gold{background:var(--gold)}
+.tcard h4{font-family:var(--display);font-size:19px;margin-bottom:6px}
+.tcard p{font-size:13.5px;opacity:.82;line-height:1.6}
+.tcard .arr{margin-top:14px;font-family:var(--mono);font-size:13px;opacity:.9}
+
+/* ---------- Lesson ---------- */
+.lesson-head{margin-bottom:30px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.lesson-head .meta{font-family:var(--mono);font-size:12px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px}
+.lesson-head h2{font-family:var(--display);font-size:34px;font-weight:600;line-height:1.15;letter-spacing:-.01em}
+.lesson-body{font-size:16.5px}
+.lesson-body h3{font-family:var(--display);font-size:22px;font-weight:600;margin:38px 0 12px;letter-spacing:-.005em}
+.lesson-body h4{font-size:16px;font-weight:700;margin:24px 0 8px;color:var(--ink)}
+.lesson-body p{margin-bottom:16px;color:#26384A}
+.lesson-body strong{color:var(--ink);font-weight:700}
+.lesson-body ul,.lesson-body ol{margin:0 0 16px 4px;padding-left:22px}
+.lesson-body li{margin-bottom:8px;color:#26384A}
+.lesson-body code,.kw{font-family:var(--mono);background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:.86em;color:var(--navy)}
+.lesson-body em{font-style:normal;color:var(--gold);font-weight:500}
+
+.formula{
+  background:var(--navy);color:#EAF1F6;border-radius:12px;padding:20px 24px;margin:22px 0;
+  font-family:var(--mono);font-size:16px;line-height:1.9;overflow-x:auto;
+}
+.formula .fl{color:#7FA8C9;font-size:12px;letter-spacing:.06em;display:block;margin-bottom:8px;text-transform:uppercase}
+.formula b{color:var(--gold);font-weight:600}
+.formula .res{color:#6FD0A0}
+
+.example{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:18px 22px;margin:22px 0}
+.example .ex-tag{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.example p{margin-bottom:10px}
+.example p:last-child{margin-bottom:0}
+
+.callout{border-radius:10px;padding:16px 20px;margin:22px 0;font-size:15px;display:flex;gap:13px}
+.callout .ic{flex-shrink:0;font-family:var(--mono);font-weight:600;font-size:13px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;margin-top:2px}
+.callout.tip{background:var(--green-bg);color:#1E5A3E}
+.callout.tip .ic{background:var(--green);color:#fff}
+.callout.warn{background:var(--red-bg);color:#8A2B1B}
+.callout.warn .ic{background:var(--red);color:#fff}
+.callout.note{background:var(--blue-bg);color:#234E76}
+.callout.note .ic{background:var(--blue);color:#fff}
+.callout p{margin:0!important;color:inherit!important}
+
+table.cmp{width:100%;border-collapse:collapse;margin:22px 0;font-size:14.5px;background:var(--surface);border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+table.cmp th{background:var(--surface-2);text-align:left;padding:11px 15px;font-weight:700;font-size:13px;color:var(--ink);border-bottom:1px solid var(--line)}
+table.cmp td{padding:11px 15px;border-bottom:1px solid var(--line-2);color:#33455A;vertical-align:top}
+table.cmp tr:last-child td{border-bottom:none}
+table.cmp .num{font-family:var(--mono);color:var(--navy)}
+
+.lesson-foot{margin-top:46px;padding-top:28px;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn{font-family:var(--body);border:none;border-radius:10px;padding:11px 20px;font-size:14.5px;font-weight:500;cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:8px}
+.btn.mark{background:var(--green);color:#fff}
+.btn.mark.done{background:var(--surface);color:var(--green);border:1px solid var(--green)}
+.btn.mark:hover{filter:brightness(1.05)}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn.next{margin-left:auto;background:var(--navy);color:#fff}
+.btn.next:hover{background:var(--navy-2)}
+
+/* terms in lesson */
+.terms-block{margin-top:34px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+.terms-block h4{font-family:var(--display);font-size:16px;margin-bottom:14px;color:var(--ink)}
+.tdef{display:grid;grid-template-columns:160px 1fr;gap:6px 16px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.tdef:last-child{border-bottom:none}
+.tdef .tt{font-weight:700;font-size:14px}
+.tdef .tt .en{display:block;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-weight:400;margin-top:2px}
+.tdef .tdd{font-size:14px;color:var(--ink-2)}
+@media(max-width:560px){.tdef{grid-template-columns:1fr}}
+
+/* ---------- Glossary ---------- */
+.gloss-head h2{font-family:var(--display);font-size:32px;font-weight:600;margin-bottom:8px}
+.gloss-head p{color:var(--ink-2);margin-bottom:24px}
+.gloss-search{position:relative;margin-bottom:8px}
+.gloss-search input{width:100%;padding:13px 16px 13px 42px;border:1px solid var(--line);border-radius:11px;font-family:var(--body);font-size:15px;background:var(--surface)}
+.gloss-search input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-bg)}
+.gloss-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+.gloss-count{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin:14px 0 20px}
+.glist{display:grid;gap:12px}
+.gitem{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:16px 20px;box-shadow:var(--shadow)}
+.gitem .gt{font-weight:700;font-size:16px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.gitem .gt .en{font-family:var(--mono);font-size:12.5px;color:var(--gold);font-weight:500}
+.gitem .gt .src{margin-left:auto;font-size:11px;color:var(--ink-3);font-family:var(--mono)}
+.gitem .gd{font-size:14.5px;color:var(--ink-2);margin-top:7px}
+.gloss-empty{text-align:center;color:var(--ink-3);padding:50px 0;font-size:15px}
+
+/* ---------- Tools ---------- */
+.tools-head h2{font-family:var(--display);font-size:32px;font-weight:600;margin-bottom:8px}
+.tools-head p{color:var(--ink-2);margin-bottom:30px}
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:26px;margin-bottom:26px;box-shadow:var(--shadow)}
+.tool h3{font-family:var(--display);font-size:21px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.tool .th-sub{font-size:14px;color:var(--ink-3);margin-bottom:22px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin-bottom:7px;display:flex;justify-content:space-between}
+.field label .v{font-family:var(--mono);color:var(--gold)}
+.field input[type=number],.field input[type=range],.field select{
+  width:100%;padding:10px 13px;border:1px solid var(--line);border-radius:9px;font-family:var(--mono);font-size:15px;background:var(--surface-2);color:var(--ink);
+}
+.field input[type=range]{padding:0;accent-color:var(--gold);background:transparent;cursor:pointer}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gold)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.tool-out{margin-top:8px;background:var(--navy);border-radius:12px;padding:22px;color:#fff}
+.tool-out .big{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--gold)}
+.tool-out .lbl{font-size:12px;color:#8AA0B2;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px}
+.tool-out .row{display:flex;gap:30px;flex-wrap:wrap;margin-top:14px}
+.tool-out .row .it .n{font-family:var(--mono);font-size:18px;color:#fff}
+.tool-out .row .it .k{font-size:11px;color:#8AA0B2;margin-top:2px}
+canvas{width:100%;height:180px;margin-top:18px;display:block}
+.alloc-bar{display:flex;height:34px;border-radius:8px;overflow:hidden;margin:10px 0 4px;font-family:var(--mono);font-size:12px;font-weight:600}
+.alloc-bar .seg{display:grid;place-items:center;color:#fff;transition:.3s}
+.disclaimer{font-size:12px;color:var(--ink-3);margin-top:10px;line-height:1.6}
+
+/* footer */
+.footer{border-top:1px solid var(--line);padding:28px 40px;text-align:center;font-size:12.5px;color:var(--ink-3);margin-left:288px}
+.footer .dis{max-width:680px;margin:0 auto 8px;line-height:1.7}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(14,34,54,.5);z-index:35}
+.overlay.show{display:block}
+
+@media(max-width:980px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s;box-shadow:6px 0 30px rgba(0,0,0,.3)}
+  .sidebar.open{transform:none}
+  .main,.footer{margin-left:0}
+  .menu-btn{display:grid;place-items:center}
+  .content{padding:30px 22px 70px}
+  .topbar{padding:12px 20px}
+  .search-wrap input{width:150px}
+  .search-wrap input:focus{width:170px}
+}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">
+        <div class="mark">$</div>
+        <h1>理財地圖</h1>
+      </div>
+      <div class="sub">投資 · 財報 · 資產配置 · 系統學習</div>
+    </div>
+    <div class="progress-box">
+      <div class="pl"><span>學習進度</span><span id="progPct">0%</span></div>
+      <div class="bar"><i id="progBar"></i></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="crumb" id="crumb">首頁 / 學習地圖</div>
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="topSearch" placeholder="搜尋術語…">
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="footer">
+      <p class="dis">本網站為投資理財教育用途，所有數字與個股／ETF 皆為說明範例，不構成任何投資建議或要約。投資有風險，實際決策請依最新資料並評估自身狀況，必要時諮詢合格專業人士。</p>
+      <p>理財地圖 · 自學工具 · 可部署於 GitHub Pages</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ STORAGE SHIM (works on GitHub Pages + falls back in-memory) ============ */
+const KEY='invest-learn-progress-v1';
+const store={
+  data:{},
+  load(){ try{ this.data=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ this.data={}; } },
+  save(){ try{ localStorage.setItem(KEY,JSON.stringify(this.data)); }catch(e){} }
+};
+store.load();
+
+/* ============ CURRICULUM DATA ============ */
+const MODULES=[
+{
+  id:'m1', num:'01', title:'投資基礎觀念', subtitle:'報酬、風險、複利、通膨',
+  lessons:[
+  {id:'m1l1', title:'投資、投機、儲蓄差在哪？',
+   body:`<p>很多人把這三件事混在一起，但它們的<strong>時間尺度</strong>和<strong>獲利來源</strong>完全不同。先把這條線分清楚，後面所有觀念才不會亂。</p>
+   <table class="cmp"><tr><th>類型</th><th>獲利來源</th><th>時間</th><th>例子</th></tr>
+   <tr><td><strong>儲蓄</strong></td><td>利息（幾乎無風險）</td><td>隨時可動用</td><td>定存、活儲</td></tr>
+   <tr><td><strong>投資</strong></td><td>資產本身會「生產」價值：公司盈餘、租金、利息</td><td>數年～數十年</td><td>持有 0050、收租、買債</td></tr>
+   <tr><td><strong>投機</strong></td><td>價差：賭別人之後願意用更高價接手</td><td>數天～數月</td><td>短線當沖、追題材股</td></tr></table>
+   <p>關鍵差別：<em>投資</em>賺的是「資產本身創造的價值」，就算你不賣，公司還是替你賺錢；<em>投機</em>賺的是「下一個買家」，你必須賣掉、而且要有人用更高價接，才算數。</p>
+   <div class="callout note"><div class="ic">i</div><p>兩者沒有對錯，但混淆會出事：用投機的心態（短期想賺價差）去做投資的部位（長期該抱著的 ETF），一遇到下跌就砍在阿呆谷。先想清楚每一筆錢是哪一種。</p></div>`,
+   terms:[{t:'資本利得',en:'Capital Gain',d:'買低賣高的價差收益，相對於股息、利息等「收益型」報酬。'},
+          {t:'被動收入',en:'Passive Income',d:'不需持續投入勞力即可獲得的現金流，如股息、租金、利息。'}]},
+
+  {id:'m1l2', title:'風險與報酬：天下沒有白吃的午餐',
+   body:`<p>金融世界第一定律：<strong>想要更高的長期報酬，就得忍受更大的短期波動。</strong>沒有「高報酬、零風險」這種東西，看到了多半是詐騙。</p>
+   <p>這裡的「風險」在財務上有個具體定義——<em>報酬的波動程度</em>，常用<span class="kw">標準差</span>來衡量。波動越大，代表你某段期間可能大賺，也可能大賠。</p>
+   <table class="cmp"><tr><th>資產</th><th>長期年化報酬（歷史參考）</th><th>波動（風險）</th></tr>
+   <tr><td>定存／貨幣基金</td><td class="num">~1–2%</td><td>極低</td></tr>
+   <tr><td>投資等級債</td><td class="num">~3–5%</td><td>低～中</td></tr>
+   <tr><td>大盤股票指數</td><td class="num">~7–10%</td><td>高</td></tr>
+   <tr><td>單一個股／小型股</td><td class="num">很分散</td><td>極高</td></tr></table>
+   <div class="callout warn"><div class="ic">!</div><p>上面是「長期平均」。短期內股票一年跌 20–40% 完全正常。能不能承受帳面上一年蒸發三成，是你選資產配置的真正起點，而不是報酬數字。</p></div>
+   <h4>夏普比率：報酬要除以你承擔的風險</h4>
+   <p>專業上會用<span class="kw">夏普比率（Sharpe Ratio）</span>來看「每承擔一單位風險，換到多少超額報酬」。同樣賺 8%，波動小的那個比較厲害。</p>`,
+   terms:[{t:'波動度',en:'Volatility',d:'價格上下擺動的劇烈程度，常以標準差衡量，是「風險」最常見的量化方式。'},
+          {t:'夏普比率',en:'Sharpe Ratio',d:'（報酬率−無風險利率）÷ 波動度。衡量「每單位風險換到多少報酬」，越高越好。'},
+          {t:'無風險利率',en:'Risk-free Rate',d:'理論上零風險的報酬基準，常用短期國庫券或定存利率代表。'}]},
+
+  {id:'m1l3', title:'複利的威力與 72 法則',
+   body:`<p>愛因斯坦據說稱複利是世界第八大奇蹟。重點不是利率多高，而是<strong>時間夠長</strong>——利滾利的曲線到後段會陡到嚇人。</p>
+   <div class="formula"><span class="fl">複利終值</span>終值 = 本金 × (1 + <b>年報酬率</b>)<sup>年數</sup></div>
+   <div class="example"><div class="ex-tag">範例</div>
+   <p>每月投入 <span class="kw">10,000 元</span>到年化 <span class="kw">8%</span> 的指數型 ETF：</p>
+   <p>· 10 年後 ≈ <span class="kw">183 萬</span>（本金僅 120 萬）<br>· 20 年後 ≈ <span class="kw">589 萬</span>（本金 240 萬）<br>· 30 年後 ≈ <span class="kw">1,490 萬</span>（本金 360 萬）</p>
+   <p>本金只多了 3 倍，但成果差了 8 倍——這就是時間的複利效果。後面的工具區有計算機可以自己玩。</p></div>
+   <h4>72 法則：心算翻倍要幾年</h4>
+   <div class="formula"><span class="fl">資產翻倍所需年數</span>年數 ≈ 72 ÷ <b>年報酬率(%)</b></div>
+   <p>年化 6% → 約 12 年翻倍；年化 8% → 約 9 年；年化 2%（定存）→ 要 36 年。反過來也能算通膨：通膨 3%，你的現金購買力 24 年腰斬。</p>
+   <div class="callout tip"><div class="ic">✓</div><p>給投資新手最重要的一句話：複利最大的敵人是「中途打斷」。頻繁進出、手續費、被嚇出場，都會把後段最陡的那段曲線砍掉。</p></div>`,
+   terms:[{t:'複利',en:'Compound Interest',d:'本金產生的收益再投入、繼續產生收益，使資產呈指數成長。'},
+          {t:'年化報酬率',en:'CAGR / Annualized Return',d:'把不同期間的報酬換算成「平均每年」的成長率，方便比較。'},
+          {t:'72 法則',en:'Rule of 72',d:'用 72 ÷ 年報酬率，快速估算資產翻倍所需年數。'}]},
+
+  {id:'m1l4', title:'通膨：你看不見的隱形稅',
+   body:`<p>把錢放在床底下不會「變少」，但會<strong>變薄</strong>。通膨讓同樣的錢能買到的東西越來越少，這是對現金最殘酷的稅。</p>
+   <div class="formula"><span class="fl">實質報酬（你真正變有錢的速度）</span>實質報酬 ≈ <b>名目報酬</b> − <b>通膨率</b></div>
+   <div class="example"><div class="ex-tag">範例</div>
+   <p>定存利率 <span class="kw">1.5%</span>，但通膨 <span class="kw">3%</span>：</p>
+   <p>實質報酬 = 1.5% − 3% = <span class="kw">−1.5%</span>。錢「帳面」變多了，但購買力其實每年縮水 1.5%。這就是為什麼「不投資」本身也是一種風險。</p></div>
+   <p>這也解釋了長期投資的意義：你不是在「賭」賺更多，而是在<em>對抗購買力流失</em>。要長期打贏通膨，現金與定存通常不夠，需要納入股票、不動產等會隨物價一起成長的資產。</p>`,
+   terms:[{t:'通貨膨脹',en:'Inflation',d:'物價普遍上漲、貨幣購買力下降的現象，常以 CPI 衡量。'},
+          {t:'名目 vs 實質報酬',en:'Nominal vs Real Return',d:'名目是帳面數字；實質是扣掉通膨後、購買力真正的成長。'},
+          {t:'消費者物價指數',en:'CPI',d:'追蹤一籃子日常商品價格變化的指數，是衡量通膨最常用的指標。'}]},
+
+  {id:'m1l5', title:'為什麼要分散：別把雞蛋放同一籃',
+   body:`<p>單押一檔股票，賭的是「這一家公司」的命運。它可能漲十倍，也可能下市歸零。<strong>分散</strong>不是為了賺更多，而是為了讓「單一壞事」不會把你打趴。</p>
+   <p>分散的精髓在於挑選「不會同漲同跌」的資產組合。當股票跌時債券常相對穩，整體波動就被平滑掉了——這牽涉到<span class="kw">相關性</span>的概念。</p>
+   <table class="cmp"><tr><th>分散維度</th><th>怎麼做</th></tr>
+   <tr><td>個股 → 一籃子</td><td>用 ETF 一次持有幾百檔，避開單一公司風險</td></tr>
+   <tr><td>產業</td><td>不要全壓半導體或全壓金融</td></tr>
+   <tr><td>地區</td><td>台股 + 美股 + 全球，分散單一市場風險</td></tr>
+   <tr><td>資產類別</td><td>股票 + 債券 + 現金，分散景氣循環風險</td></tr>
+   <tr><td>時間</td><td>定期定額，分散「買在最高點」的風險</td></tr></table>
+   <div class="callout tip"><div class="ic">✓</div><p>對多數人而言，「買一兩檔涵蓋全市場的 ETF + 定期定額」就已經完成大半分散工作。模組 5 會教你怎麼把這些組起來。</p></div>`,
+   terms:[{t:'分散投資',en:'Diversification',d:'把資金分配到多種不會同漲同跌的資產，降低整體波動與單一風險。'},
+          {t:'相關性',en:'Correlation',d:'兩資產走勢的連動程度（−1 到 +1）。負相關的資產能互相抵消波動。'},
+          {t:'系統性風險',en:'Systematic Risk',d:'整體市場共同面對、無法靠分散消除的風險（如升息、衰退）。'}]},
+  ]
+},
+{
+  id:'m2', num:'02', title:'資產類別總覽', subtitle:'股票、債券、ETF、REITs',
+  lessons:[
+  {id:'m2l1', title:'股票：當公司的股東',
+   body:`<p>買一張股票，就是買下這家公司的<strong>一小塊所有權</strong>。公司賺錢，你有兩種方式分到：</p>
+   <ul><li><strong>股息（配息）</strong>：公司把部分盈餘發給股東，台股通常一年配一次（近年也有季配）。</li><li><strong>股價上漲（資本利得）</strong>：公司價值成長，市場願意用更高價買你的股份。</li></ul>
+   <p>股票長期報酬最高，但短期波動也最大。它本質上是「跟著公司一起承擔好壞」。</p>
+   <div class="callout note"><div class="ic">i</div><p>台股一張 = 1,000 股，但現在可買「零股」逐股交易。台積電(2330) 一張要幾十萬，零股讓小資也能參與。</p></div>`,
+   terms:[{t:'股息',en:'Dividend',d:'公司將盈餘分配給股東的現金（或股票），是股票的收益型報酬。'},
+          {t:'除權息',en:'Ex-dividend',d:'配發股息/股票後股價對應調降的機制；除息當天股價會扣掉配息金額。'},
+          {t:'零股交易',en:'Odd-lot Trading',d:'不足一張（1,000 股）的交易，讓投資人能用小額買進高價股。'}]},
+
+  {id:'m2l2', title:'債券：當別人的債主',
+   body:`<p>買債券，你不是股東，而是<strong>債主</strong>——把錢借給政府或公司，對方定期付你利息，到期還本。</p>
+   <p>因為是「借錢」，違約風險通常比「持股」低，所以債券較穩、報酬較低，常被當成投資組合裡的<em>避震器</em>。</p>
+   <h4>債券價格與利率：翹翹板</h4>
+   <div class="callout warn"><div class="ic">!</div><p>最反直覺、也最重要的一點：<strong>市場利率上升 → 既有債券價格下跌</strong>。因為新發行的債券利息更高，你手上那張舊的低利債就不值錢了。2022 年升息時很多「保守」的債券基金大跌，就是這個原因。</p></div>
+   <table class="cmp"><tr><th>分類</th><th>特性</th></tr>
+   <tr><td>公債 / 國債</td><td>政府發行，違約風險最低</td></tr>
+   <tr><td>投資等級公司債</td><td>體質好的公司，殖利率略高</td></tr>
+   <tr><td>非投資等級債（高收益債）</td><td>利息誘人但違約風險高，景氣差時會跟股票一起跌</td></tr></table>`,
+   terms:[{t:'債券',en:'Bond',d:'借款憑證。投資人借錢給發行方，換取定期票息與到期還本。'},
+          {t:'殖利率',en:'Yield',d:'債券的年化收益率，與價格呈反向關係。'},
+          {t:'存續期間',en:'Duration',d:'衡量債券價格對利率變動的敏感度，存續期越長、受利率影響越大。'}]},
+
+  {id:'m2l3', title:'ETF 與共同基金：一次買一籃子',
+   body:`<p><strong>ETF（指數股票型基金）</strong>是現代散戶最好的工具。買一檔，就等於同時持有一籃子股票/債券，自動完成分散，而且費用低。</p>
+   <table class="cmp"><tr><th></th><th>ETF</th><th>共同基金（傳統）</th></tr>
+   <tr><td>怎麼買</td><td>像股票一樣在盤中即時買賣</td><td>向基金公司申購/贖回，以淨值成交</td></tr>
+   <tr><td>費用</td><td class="num">通常很低（0.03–0.5%）</td><td class="num">較高（1–2%+）</td></tr>
+   <tr><td>策略</td><td>多為被動追蹤指數</td><td>多為主動選股</td></tr></table>
+   <div class="callout tip"><div class="ic">✓</div><p>研究反覆顯示：長期來看，多數主動型基金贏不過大盤指數，扣掉費用後更輸。這是「指數化投資（被動投資）」會這麼受推崇的核心原因。台股代表 <span class="kw">0050</span>、美股代表 <span class="kw">VOO / VTI</span>。</p></div>`,
+   terms:[{t:'ETF',en:'Exchange-Traded Fund',d:'在交易所掛牌、像股票一樣買賣的基金，多追蹤特定指數，分散又低費。'},
+          {t:'指數化投資',en:'Index Investing',d:'不選股、直接買進整個市場指數的被動策略，賺取市場平均報酬。'},
+          {t:'內扣費用',en:'Expense Ratio',d:'基金/ETF 每年從淨值內自動扣除的管理成本，長期影響巨大。'},
+          {t:'淨值',en:'NAV',d:'基金每單位的實際價值＝（總資產−負債）÷ 發行單位數。'}]},
+
+  {id:'m2l4', title:'REITs 與其他資產',
+   body:`<p>除了股債，還有一些值得認識的類別，可以進一步分散：</p>
+   <ul>
+   <li><strong>REITs（不動產投資信託）</strong>：買一檔就等於當「一群商辦/商場的小房東」，靠租金配息。讓你不用真的買房，也能參與不動產收益。</li>
+   <li><strong>商品 / 黃金</strong>：抗通膨、與股債相關性低，但本身不生利息，多為避險配角。</li>
+   <li><strong>現金 / 貨幣基金</strong>：報酬低但隨時可動用，是你的「子彈」與安全墊。</li>
+   </ul>
+   <div class="callout note"><div class="ic">i</div><p>加密貨幣、衍生性商品（期權、期貨）波動極大、複雜度高，對「系統性學習」的初中階階段建議先放一邊，地基穩了再說。</p></div>`,
+   terms:[{t:'REITs',en:'Real Estate Investment Trust',d:'將不動產證券化、在交易所交易的工具，主要靠租金收益配息。'},
+          {t:'避險',en:'Hedge',d:'建立與既有部位反向的配置，以降低整體損失，如用黃金/債券對沖股票。'}]},
+
+  {id:'m2l5', title:'風險報酬光譜：把它們排排站',
+   body:`<p>把前面的資產放在同一條線上，從「穩但慢」到「猛但晃」，你就有了選擇配置的直覺地圖：</p>
+   <div class="formula"><span class="fl">由穩到猛</span>現金 → 公債 → 投資級債 → REITs / 高收債 → 大盤股 → 單一個股 → 衍生品<br><span class="res">報酬潛力 ↑　　　波動 ↑　　　該抱越久</span></div>
+   <p>沒有「最好的資產」，只有「最適合你此刻目標與承受度的組合」。三個月後要用的錢別碰股票；二十年後才用的退休金全放定存則太可惜。模組 5 會把這條光譜組成你的配置。</p>
+   <div class="callout tip"><div class="ic">✓</div><p>判斷一個資產該不該放，先問三件事：<strong>它怎麼賺錢？最糟會多糟？我要抱多久？</strong>答得出來才買。</p></div>`,
+   terms:[{t:'風險承受度',en:'Risk Tolerance',d:'你在情緒與財務上能承受多大跌幅而不亂砍出場的能力。'},
+          {t:'流動性',en:'Liquidity',d:'資產能多快、以接近市價變現的能力。現金最高，房地產最低。'}]},
+  ]
+},
+{
+  id:'m3', num:'03', title:'看懂三大財報', subtitle:'資產負債表、損益表、現金流',
+  lessons:[
+  {id:'m3l1', title:'財報是什麼？去哪看？',
+   body:`<p>財報是公司的<strong>體檢報告</strong>。基本面分析的第一步，就是學會讀這三張表：</p>
+   <ul><li><strong>資產負債表</strong>：公司「現在」有多少家底（某一天的快照）。</li><li><strong>損益表</strong>：公司「這段期間」賺不賺錢（一段影片）。</li><li><strong>現金流量表</strong>：公司「這段期間」現金真正進出多少。</li></ul>
+   <div class="callout note"><div class="ic">i</div><p>台股查財報：<span class="kw">公開資訊觀測站（mops）</span>、Goodinfo、財報狗。美股：公司 Investor Relations、SEC 的 10-K（年報）/10-Q（季報）、或 macrotrends 等網站。</p></div>
+   <p>看財報不是要你會做會計，而是培養三個直覺：<em>賺不賺錢、會不會倒、是不是真的有現金</em>。接下來三課各對應一張表。</p>`,
+   terms:[{t:'財務報表',en:'Financial Statements',d:'公司對外揭露財務狀況的標準文件，核心為三大表。'},
+          {t:'年報 / 季報',en:'10-K / 10-Q',d:'美股公司向 SEC 申報的年度/季度報告，內含完整財報與經營說明。'},
+          {t:'公開資訊觀測站',en:'MOPS',d:'台灣上市櫃公司財報與重大訊息的官方揭露平台。'}]},
+
+  {id:'m3l2', title:'資產負債表：公司的家底',
+   body:`<p>資產負債表回答一個問題：<strong>這家公司現在擁有什麼、欠了什麼、真正屬於股東的有多少？</strong>它永遠遵守一條鐵律：</p>
+   <div class="formula"><span class="fl">會計恆等式（永遠成立）</span><b>資產</b> = <b>負債</b> + <b>股東權益</b><br><span class="res">（有的東西）　（借來的）　（自己的）</span></div>
+   <p>用買房比喻：房子總價 1,000 萬（資產）＝ 房貸 700 萬（負債）＋ 你的頭期款 300 萬（股東權益）。</p>
+   <h4>看資產負債表三個重點</h4>
+   <ul><li><strong>負債比過高？</strong>借太多錢，景氣一差就吃緊。</li><li><strong>現金充足嗎？</strong>手上有沒有銀彈撐過寒冬。</li><li><strong>應收帳款/存貨暴增？</strong>東西賣不掉、錢收不回的警訊。</li></ul>
+   <div class="example"><div class="ex-tag">看數字</div><p>負債比 = 總負債 ÷ 總資產。一般製造業 40–60% 算常見；金融、營建天生偏高要分開看。<strong>重點是跟「同業」和「自己過去」比，而不是看絕對值。</strong></p></div>`,
+   terms:[{t:'資產負債表',en:'Balance Sheet',d:'某一時點公司資產、負債、股東權益的快照，三者恆等。'},
+          {t:'股東權益',en:"Shareholders' Equity",d:'資產減去負債後，真正屬於股東的淨值，也叫淨值或帳面價值。'},
+          {t:'負債比',en:'Debt Ratio',d:'總負債÷總資產，衡量公司財務槓桿與償債壓力。'}]},
+
+  {id:'m3l3', title:'損益表：公司會不會賺錢',
+   body:`<p>損益表像一個<strong>漏斗</strong>：從最上面的營收，一層層扣掉各種成本費用，看最後漏到底部、真正進口袋的淨利剩多少。</p>
+   <div class="formula"><span class="fl">損益表漏斗</span>營業收入（賣多少）<br>− 營業成本　→　<b>毛利</b><br>− 營業費用　→　<b>營業利益</b>（本業賺多少）<br>± 業外損益、稅<br>= <span class="res">稅後淨利（真正賺多少）</span><br>÷ 股數 = <b>EPS</b> 每股盈餘</div>
+   <p>三個「賺多少」層級，意義各不同：</p>
+   <ul><li><strong>毛利</strong>：產品本身有沒有賺頭。</li><li><strong>營業利益</strong>：扣掉行銷、管理、研發後，<em>本業</em>是否賺錢。最能看出公司硬實力。</li><li><strong>稅後淨利</strong>：含業外（賣資產、匯兌、轉投資）後的最終結果。</li></ul>
+   <div class="callout warn"><div class="ic">!</div><p>陷阱：有些公司本業（營業利益）平平，靠「賣土地、處分股票」灌出漂亮淨利。要養成「本業 vs 業外」分開看的習慣——一次性的業外收入無法持續。</p></div>`,
+   terms:[{t:'損益表',en:'Income Statement',d:'呈現一段期間營收、成本、費用與獲利的報表。'},
+          {t:'毛利',en:'Gross Profit',d:'營收減去營業成本，反映產品本身的賺錢能力。'},
+          {t:'營業利益',en:'Operating Income',d:'毛利再扣營業費用，代表本業的獲利能力。'},
+          {t:'EPS',en:'Earnings Per Share',d:'稅後淨利÷在外流通股數，即每一股賺多少錢。'}]},
+
+  {id:'m3l4', title:'現金流量表：賺的是不是真的錢',
+   body:`<p>這是最被新手忽略、卻最防雷的一張表。原因是：<strong>損益表的「淨利」是會計帳上的數字，不等於戶頭真的多了那麼多現金。</strong></p>
+   <p>例如公司賣了一億的貨，帳上認列一億營收與利潤，但客戶還沒付錢（變成應收帳款）。帳面很賺，現金卻沒進來。現金流量表就是來戳破這層的。它分三塊：</p>
+   <table class="cmp"><tr><th>活動</th><th>看什麼</th></tr>
+   <tr><td><strong>營業活動</strong></td><td>本業實際收到的現金。<em>長期應為正且穩定</em>，這是命脈。</td></tr>
+   <tr><td><strong>投資活動</strong></td><td>買設備、蓋廠、買股票。成長期公司常為負（正在擴張）。</td></tr>
+   <tr><td><strong>融資活動</strong></td><td>借錢、還債、發股、配息。</td></tr></table>
+   <div class="callout tip"><div class="ic">✓</div><p>最重要的觀念——<span class="kw">自由現金流（FCF）</span>＝ 營業現金流 − 資本支出。這是公司「養活自己、還能發股息或還債」的真實餘裕。一家長期 FCF 為正的公司，體質通常扎實。</p></div>
+   <div class="callout warn"><div class="ic">!</div><p>危險訊號：淨利連年成長，營業現金流卻越來越差或為負——很可能是「帳面獲利、收不到現金」，財報品質要打問號。</p></div>`,
+   terms:[{t:'現金流量表',en:'Cash Flow Statement',d:'追蹤一段期間現金實際流入流出，分營業、投資、融資三類。'},
+          {t:'自由現金流',en:'Free Cash Flow (FCF)',d:'營業現金流減資本支出，公司可自由運用的現金，越多越健康。'},
+          {t:'應收帳款',en:'Accounts Receivable',d:'已認列營收但尚未收到的款項，過高代表收款風險。'}]},
+
+  {id:'m3l5', title:'三表如何串在一起',
+   body:`<p>三張表不是各自獨立，而是一個<strong>循環</strong>。看懂連動，財報就活起來了：</p>
+   <div class="formula"><span class="fl">三表連動</span>損益表的<b>淨利</b><br>　↓ 進入<br>資產負債表的<b>股東權益</b>（保留盈餘）<br>　↓ 同時<br>現金流量表用淨利為起點，調整出<b>真實現金</b><br>　↓ 期末現金<br>回到資產負債表的<b>現金科目</b></div>
+   <p>白話版：公司賺的錢（損益表）一部分留下來變厚家底（資產負債表的權益），而這些獲利到底有沒有變成真金白銀，由現金流量表驗證。</p>
+   <div class="callout note"><div class="ic">i</div><p>看財報的順序建議：① 現金流量表（活不活得下去）→ ② 損益表（賺不賺錢、本業強不強）→ ③ 資產負債表（家底厚不厚、負債重不重）。三個都過關，才進到下一模組的估值。</p></div>`,
+   terms:[{t:'保留盈餘',en:'Retained Earnings',d:'公司歷年淨利扣除配息後累積保留的部分，屬於股東權益。'},
+          {t:'財報品質',en:'Earnings Quality',d:'帳面獲利與實際現金流的吻合程度，高品質獲利有現金支撐。'}]},
+  ]
+},
+{
+  id:'m4', num:'04', title:'基本面選股與估值', subtitle:'PE、PB、ROE、三率、殖利率',
+  lessons:[
+  {id:'m4l1', title:'EPS：每股替你賺多少',
+   body:`<p>估值的起點。<strong>EPS（每股盈餘）</strong>把公司總獲利攤到每一股上，讓不同規模的公司能比較。</p>
+   <div class="formula"><span class="fl">每股盈餘</span>EPS = <b>稅後淨利</b> ÷ <b>在外流通股數</b></div>
+   <div class="example"><div class="ex-tag">範例</div><p>某公司稅後賺 100 億，流通 10 億股 → EPS = <span class="kw">10 元</span>。意思是你每持有一股，公司一年替你賺 10 元（不是發給你 10 元，要看配息率）。</p></div>
+   <p>看 EPS 重點不在單一數字，而在<em>趨勢</em>：是逐季/逐年成長，還是衰退？成長股的核心，就是 EPS 能持續往上。</p>
+   <div class="callout warn"><div class="ic">!</div><p>注意 EPS 可能被「股數變化」影響：公司買回庫藏股會讓 EPS 上升（分母變小），增資則稀釋 EPS。看 EPS 成長時要確認是「真的多賺」還是「股數變少」。</p></div>`,
+   terms:[{t:'每股盈餘',en:'EPS',d:'公司每一股賺多少錢，是估值最基礎的指標。'},
+          {t:'股本稀釋',en:'Dilution',d:'增發新股使每股盈餘與持股比例下降的效果。'}]},
+
+  {id:'m4l2', title:'本益比 P/E：你願意用幾年獲利買它',
+   body:`<p>最常用的估值指標。<strong>本益比</strong>＝你付的股價，是公司一年 EPS 的幾倍。</p>
+   <div class="formula"><span class="fl">本益比</span>P/E = <b>股價</b> ÷ <b>每股盈餘(EPS)</b></div>
+   <p>白話：本益比 15，代表「以目前獲利水準，要 15 年才把你買它的錢賺回來」。所以——</p>
+   <ul><li>本益比<strong>低</strong>：可能便宜，也可能是市場認為它要衰退（價值陷阱）。</li><li>本益比<strong>高</strong>：可能太貴，也可能市場預期它高速成長（成長股）。</li></ul>
+   <div class="example"><div class="ex-tag">範例</div><p>股價 200、EPS 10 → P/E = <span class="kw">20 倍</span>。同業平均若是 15 倍，代表市場給它較高評價；要去想「憑什麼？成長更快？護城河更深？」</p></div>
+   <div class="callout tip"><div class="ic">✓</div><p>本益比只能「比較」用，不能單看絕對值。比較三個基準：① 同產業同業、② 公司自己的歷史區間、③ 搭配成長性（高成長配高 P/E 才合理，可看 PEG＝P/E ÷ 盈餘成長率，約 1 算合理）。</p></div>`,
+   terms:[{t:'本益比',en:'P/E Ratio',d:'股價÷EPS，代表用幾年獲利回本，衡量股票貴不貴。'},
+          {t:'PEG',en:'PEG Ratio',d:'本益比÷盈餘成長率，把成長性納入估值，約 1 視為合理。'},
+          {t:'價值陷阱',en:'Value Trap',d:'看似便宜（低 P/E）但基本面持續惡化、股價跌跌不休的股票。'}]},
+
+  {id:'m4l3', title:'股價淨值比 P/B：股價相對家底貴不貴',
+   body:`<p>當公司虧損、EPS 為負時，本益比就失靈了。這時用<strong>股價淨值比</strong>——比較股價與「每股淨值（帳面價值）」。</p>
+   <div class="formula"><span class="fl">股價淨值比</span>P/B = <b>股價</b> ÷ <b>每股淨值</b><br><span class="fl" style="margin-top:6px">每股淨值 = 股東權益 ÷ 股數</span></div>
+   <p>P/B = 1，代表股價剛好等於公司清算家底的價值；小於 1 代表「市價低於帳面」，可能便宜，也可能市場認為資產有水分。</p>
+   <div class="callout note"><div class="ic">i</div><p>P/B 特別適合<strong>資產型公司</strong>（銀行、保險、營建、傳產），因為它們的價值大半在實體資產。對輕資產的科技/品牌公司（價值在無形的技術、商譽）就比較不準，看 P/E 或現金流更合適。</p></div>`,
+   terms:[{t:'股價淨值比',en:'P/B Ratio',d:'股價÷每股淨值，衡量市價相對公司帳面家底的倍數。'},
+          {t:'每股淨值',en:'Book Value per Share',d:'股東權益÷股數，代表每股對應的帳面資產淨值。'}]},
+
+  {id:'m4l4', title:'ROE：公司幫股東賺錢的效率',
+   body:`<p>如果只能看一個「品質」指標，很多人選 <strong>ROE（股東權益報酬率）</strong>。它回答：公司用股東的錢，每年滾出多少報酬？</p>
+   <div class="formula"><span class="fl">股東權益報酬率</span>ROE = <b>稅後淨利</b> ÷ <b>股東權益</b> × 100%</div>
+   <div class="example"><div class="ex-tag">範例</div><p>股東權益 500 億、淨利 100 億 → ROE = <span class="kw">20%</span>。意思是公司用股東的每 100 元，一年生出 20 元。長期穩定 15% 以上通常算優等生。</p></div>
+   <div class="callout warn"><div class="ic">!</div><p>ROE 有個陷阱：<strong>借大量負債也能把 ROE 衝高</strong>（分母權益變小）。所以高 ROE 要搭配「負債比是否合理」一起看，避免被「高槓桿假象」騙到。進階可拆成杜邦分析：ROE = 淨利率 × 總資產周轉率 × 權益乘數，看高 ROE 是來自「會賺、會轉、還是敢借」。</p></div>`,
+   terms:[{t:'股東權益報酬率',en:'ROE',d:'淨利÷股東權益，衡量公司運用股東資金的獲利效率。'},
+          {t:'杜邦分析',en:'DuPont Analysis',d:'把 ROE 拆成獲利能力、周轉效率、財務槓桿三項，看清高 ROE 的來源。'},
+          {t:'資產報酬率',en:'ROA',d:'淨利÷總資產，不受槓桿影響，衡量整體資產的運用效率。'}]},
+
+  {id:'m4l5', title:'三率：毛利率、營益率、淨利率',
+   body:`<p>「三率三升」是台股財報季的熱門詞。它把損益表的三個獲利層級，都換算成「占營收的百分比」，方便比較與看趨勢。</p>
+   <div class="formula"><span class="fl">三率</span>毛利率 = <b>毛利</b> ÷ 營收<br>營益率 = <b>營業利益</b> ÷ 營收<br>淨利率 = <b>稅後淨利</b> ÷ 營收</div>
+   <ul><li><strong>毛利率</strong>高 → 產品有定價權、有護城河（如台積電毛利率長年 50%+）。</li><li><strong>營益率</strong>高 → 成本控管好、本業強。</li><li>毛利率高但營益率掉很多 → 行銷/管理費用吃掉獲利。</li></ul>
+   <div class="callout tip"><div class="ic">✓</div><p>看三率重點是<strong>趨勢與穩定度</strong>。「三率三升」（三個比率同步上升）通常是基本面轉強的訊號；反之三率齊跌要警覺。記得跟同業比，不同產業天生毛利率差很大。</p></div>`,
+   terms:[{t:'毛利率',en:'Gross Margin',d:'毛利÷營收，反映產品定價能力與護城河。'},
+          {t:'營業利益率',en:'Operating Margin',d:'營業利益÷營收，反映本業的賺錢效率與成本控管。'},
+          {t:'淨利率',en:'Net Margin',d:'稅後淨利÷營收，公司每 1 元營收最終賺到幾元。'}]},
+
+  {id:'m4l6', title:'殖利率與配息：領股息的學問',
+   body:`<p>偏好現金流的投資人愛看<strong>殖利率</strong>——你買進的價格，每年能領回多少比例的股息。</p>
+   <div class="formula"><span class="fl">現金殖利率</span>殖利率 = <b>每股現金股利</b> ÷ <b>股價</b> × 100%</div>
+   <div class="example"><div class="ex-tag">範例</div><p>股價 100、每股配 5 元 → 殖利率 = <span class="kw">5%</span>。台股 0056、00878 等高股息 ETF 就是訴求這個。</p></div>
+   <h4>三個常見誤區</h4>
+   <ul><li><strong>高殖利率≠賺到</strong>：除息後股價會扣掉配息，還沒「填息」前只是把自己的錢發回來，還要繳稅。</li><li><strong>配息率（盈餘發了幾成）也要看</strong>：配息率超過 100%（賺 5 元卻配 6 元）是在吃老本，不可持續。</li><li>成長股常<em>不配息</em>，把錢留著再投資、長大更快——不配息不代表不好。</li></ul>
+   <div class="callout note"><div class="ic">i</div><p>台股配息要併入所得課稅（或分離課稅 28%）、可抵減；美股股息對台灣人預扣 30%。「高股息」策略未必比「總報酬」高，模組 6 會談稅與費用如何吃掉報酬。</p></div>`,
+   terms:[{t:'殖利率',en:'Dividend Yield',d:'每股現金股利÷股價，衡量領息的報酬率。'},
+          {t:'配息率',en:'Payout Ratio',d:'現金股利÷EPS，公司把多少比例盈餘發給股東，過高不可持續。'},
+          {t:'填息',en:'Dividend Recovery',d:'除息後股價漲回除息前價位，代表這次配息「真的賺到」。'}]},
+
+  {id:'m4l7', title:'把指標組起來：一張快速體檢清單',
+   body:`<p>單一指標都會騙人，威力在「組合交叉看」。給你一份初階體檢順序：</p>
+   <table class="cmp"><tr><th>問題</th><th>看哪個指標</th><th>大致標準（需比同業）</th></tr>
+   <tr><td>會賺錢嗎？效率好嗎？</td><td>ROE、三率</td><td class="num">ROE 長期 &gt;15%、三率穩或升</td></tr>
+   <tr><td>賺的是真現金嗎？</td><td>營業現金流、FCF</td><td class="num">長期為正</td></tr>
+   <tr><td>會不會倒？</td><td>負債比、利息保障倍數</td><td class="num">負債比合理、現金足</td></tr>
+   <tr><td>成長性？</td><td>EPS / 營收年增率</td><td class="num">趨勢向上</td></tr>
+   <tr><td>現在貴不貴？</td><td>P/E（搭 PEG）、P/B、殖利率</td><td class="num">低於歷史與同業＋有成長支撐</td></tr></table>
+   <div class="callout tip"><div class="ic">✓</div><p>順序記住：<strong>先確認是好公司（前四項），再判斷是不是好價格（最後一項）。</strong>好公司買貴了也會賠錢；爛公司再便宜也別碰。工具區有「估值快算」可以練手。</p></div>
+   <div class="callout warn"><div class="ic">!</div><p>提醒：基本面分析適合判斷「公司值不值得長期持有」，但無法預測短期股價。它讓你買得安心、抱得住，而不是讓你抓到買賣點。</p></div>`,
+   terms:[{t:'護城河',en:'Economic Moat',d:'公司抵禦競爭、長期維持高獲利的結構性優勢，如品牌、規模、技術。'},
+          {t:'利息保障倍數',en:'Interest Coverage',d:'營業利益÷利息費用，衡量公司賺的錢夠不夠付利息。'}]},
+  ]
+},
+{
+  id:'m5', num:'05', title:'資產配置與風險管理', subtitle:'配置、再平衡、定期定額',
+  lessons:[
+  {id:'m5l1', title:'為什麼「配置」比「選股」重要',
+   body:`<p>多數研究指出，一個投資組合的長期報酬與波動，<strong>絕大部分來自「資產配置」（股債比、地區比），而非個別選股或進出場時機。</strong>換句話說，你「買多少比例的股票」，比「買哪一檔」影響更大。</p>
+   <p>這對新手是好消息：你不需要變成選股天才，把配置這件大事做對，就贏一半了。</p>
+   <div class="callout tip"><div class="ic">✓</div><p>核心觀念順序：先決定<strong>資產配置（戰略）</strong>→ 再選工具（ETF）→ 最後才是少量個股（如果你想）。很多人順序顛倒，整天研究個股卻沒想過自己該放幾成股票。</p></div>`,
+   terms:[{t:'資產配置',en:'Asset Allocation',d:'決定資金在股、債、現金等各類資產的比例，是影響長期績效的最大因素。'},
+          {t:'戰略 vs 戰術配置',en:'Strategic vs Tactical',d:'戰略是長期固定的基本比例；戰術是依市況短期微調。'}]},
+
+  {id:'m5l2', title:'股債配置：用你的承受度決定比例',
+   body:`<p>最經典的框架是<strong>股債配置</strong>。股票負責成長，債券負責穩定。比例怎麼抓？看兩件事：<em>投資年限</em>與<em>風險承受度</em>。</p>
+   <table class="cmp"><tr><th>類型</th><th>股 : 債</th><th>適合</th></tr>
+   <tr><td>積極</td><td class="num">90 : 10 ～ 80 : 20</td><td>年輕、距離用錢還久、抗得住大跌</td></tr>
+   <tr><td>穩健</td><td class="num">60 : 40</td><td>經典平衡組合，進可攻退可守</td></tr>
+   <tr><td>保守</td><td class="num">40 : 60 ～ 30 : 70</td><td>接近用錢、看到大跌會睡不著</td></tr></table>
+   <div class="callout note"><div class="ic">i</div><p>有個老派公式可當<em>起點</em>：股票比例 ≈ <span class="kw">110 − 年齡</span>（30 歲 → 約 80% 股票）。它不是真理，只是提醒「越接近用錢、股票該越少」。最終仍要回到你睡不睡得著。</p></div>
+   <div class="callout warn"><div class="ic">!</div><p>測試自己的承受度：問「如果這筆錢一年內帳面跌 30%，我會不會睡不著、忍不住賣掉？」會的話，就把股票比例往下調。能抱得住的配置，才是好配置。</p></div>`,
+   terms:[{t:'股債配置',en:'Stock/Bond Allocation',d:'投資組合中股票與債券的比例，是平衡報酬與風險的主要旋鈕。'},
+          {t:'生命週期投資',en:'Lifecycle Investing',d:'隨年齡增長逐步降低股票比例、提高債券的配置思維。'}]},
+
+  {id:'m5l3', title:'再平衡：自動「買低賣高」的紀律',
+   body:`<p>假設你設定股 60 : 債 40。一年後股票大漲，變成 70 : 30。<strong>再平衡</strong>就是把多出來的股票賣一點、補回債券，拉回原本的 60 : 40。</p>
+   <p>這件事的威力在於：它<em>強迫你在高點賣一些、在低點買一些</em>——剛好和人性相反，而人性常讓我們追高殺低。</p>
+   <div class="callout tip"><div class="ic">✓</div><p>常見作法：① 固定時間（每年一次）、② 偏離門檻（任一類偏離目標 5% 就調）。對小資族，更簡單的是<strong>用新投入的錢去補比例低的那一邊</strong>，可省下賣出的稅與手續費。</p></div>
+   <p>再平衡不是為了賺更多，而是<strong>把組合的風險維持在你當初決定的水準</strong>，不讓它隨市場漂移成你沒打算承擔的樣子。</p>`,
+   terms:[{t:'再平衡',en:'Rebalancing',d:'定期把組合比例調回目標配置，內建「買低賣高」紀律並控制風險。'},
+          {t:'偏離門檻',en:'Rebalancing Threshold',d:'當資產比例偏離目標達設定幅度（如5%）即觸發再平衡。'}]},
+
+  {id:'m5l4', title:'定期定額 vs 單筆投入',
+   body:`<p><strong>定期定額（DCA）</strong>：固定時間投入固定金額，不管當下股價高低。<strong>單筆</strong>：一次把錢全部投入。</p>
+   <table class="cmp"><tr><th></th><th>定期定額</th><th>單筆投入</th></tr>
+   <tr><td>核心好處</td><td>分散買進時點、降低「買在最高點」的後悔、克服情緒</td><td>資金越早入場、複利時間越長，長期期望報酬通常較高</td></tr>
+   <tr><td>適合</td><td>每月有薪水現金流、怕擇時、新手</td><td>手上已有一筆閒置資金、心臟夠大</td></tr></table>
+   <div class="callout note"><div class="ic">i</div><p>學理上，因為市場長期向上，「越早全投入」期望值略高；但<strong>實務上多數人受不了單筆後馬上大跌的痛</strong>。定期定額最大的價值不是報酬最大化，而是<em>讓你能持續、抱得住、不被情緒洗出場</em>。對上班族，定期定額幾乎是最務實的解。</p></div>`,
+   terms:[{t:'定期定額',en:'Dollar-Cost Averaging',d:'固定週期投入固定金額，平均買進成本、淡化擇時與情緒。'},
+          {t:'擇時',en:'Market Timing',d:'試圖預測高低點進出市場；長期而言極難穩定做對。'}]},
+
+  {id:'m5l5', title:'緊急預備金與停損：守住下檔',
+   body:`<p>投資前要先建好<strong>地基</strong>，否則一遇意外就被迫在低點砍股票變現。</p>
+   <h4>1. 緊急預備金</h4>
+   <p>先存好 <span class="kw">3–6 個月</span>（不穩定收入者 6–12 個月）的生活開銷，放在隨時可動用的活存/貨幣基金。這是你的安全氣囊，讓你敢於長期投資而不怕短期意外。</p>
+   <h4>2. 停損與部位控管</h4>
+   <p>對「個股」可設停損點（如跌 15–20% 重新檢視）。但對「分散的指數 ETF」，下跌往往是加碼機會而非停損理由——別把兩者混為一談。</p>
+   <div class="callout warn"><div class="ic">!</div><p>最該管理的風險其實是<strong>「過度集中」與「借錢/槓桿」</strong>。不要單一個股押超過你能承受歸零的比例；融資、開槓桿會在大跌時被斷頭，把你永久踢出市場。守住這兩條，你就贏過大多數人。</p></div>
+   <div class="callout tip"><div class="ic">✓</div><p>風險管理的最高境界不是預測，而是<strong>事先設計好「最糟情況我也活得下去」</strong>：足夠現金、合理分散、不開槓桿、配置能抱得住。地基穩，才談得上複利。</p></div>`,
+   terms:[{t:'緊急預備金',en:'Emergency Fund',d:'3–6 個月生活費的高流動性儲備，避免意外時被迫低價變現投資。'},
+          {t:'停損',en:'Stop Loss',d:'預設虧損出場點以控制單筆損失，較適用於個股而非分散型 ETF。'},
+          {t:'槓桿',en:'Leverage',d:'借錢放大部位，能放大報酬也放大虧損，大跌時恐遭斷頭。'}]},
+  ]
+},
+{
+  id:'m6', num:'06', title:'投資工具與實務', subtitle:'台股＋美股開戶、ETF、費用與稅',
+  lessons:[
+  {id:'m6l1', title:'台股怎麼開始：開戶與下單',
+   body:`<p>實際動手的第一步。台股流程大致是：</p>
+   <ol><li><strong>開證券戶＋交割銀行帳戶</strong>：選一家券商（看手續費折數、App 好不好用、定期定額標的）。現在多可線上開戶。</li><li><strong>入金到交割帳戶</strong>：買股票的錢從這扣、賣股的錢匯這。</li><li><strong>下單</strong>：用券商 App 輸入代號、張數/股數、價格。</li></ol>
+   <h4>交易時間與單位</h4>
+   <ul><li>盤中交易：週一～五 09:00–13:30。</li><li>一張 = 1,000 股；不足一張用<span class="kw">盤中零股</span>或<span class="kw">定期定額</span>買。</li><li>漲跌幅限制 ±10%。</li></ul>
+   <div class="callout tip"><div class="ic">✓</div><p>新手友善作法：開好戶後，先用「定期定額」每月小額買一檔大盤 ETF（如 0050 / 006208），一邊累積一邊把這六個模組讀完，邊學邊做。</p></div>`,
+   terms:[{t:'證券交割帳戶',en:'Settlement Account',d:'與證券戶連動的銀行帳戶，買賣股票的款項由此扣付。'},
+          {t:'盤中零股交易',en:'Intraday Odd-lot',d:'盤中可逐股買賣不足一張的股票，09:00–13:30 採逐筆撮合。'}]},
+
+  {id:'m6l2', title:'台股 ETF：0050、0056 這些代號',
+   body:`<p>對系統化、低維護的投資人，台股 ETF 是核心工具。認識幾個代表類型（以下為說明，非推薦）：</p>
+   <table class="cmp"><tr><th>類型</th><th>代表代號</th><th>訴求</th></tr>
+   <tr><td>市值型（大盤）</td><td class="num">0050、006208</td><td>追蹤台灣前 50 大／大盤，賺整體經濟成長</td></tr>
+   <tr><td>高股息型</td><td class="num">0056、00878、00919</td><td>篩高殖利率成分股，訴求現金流</td></tr>
+   <tr><td>美股型（台掛）</td><td class="num">00646(S&amp;P500)、00662(那斯達克)</td><td>用台幣買進美國指數，免複委託</td></tr>
+   <tr><td>債券型</td><td class="num">00679B 等</td><td>配置債券、平衡組合波動</td></tr></table>
+   <div class="callout note"><div class="ic">i</div><p>市值型 vs 高股息怎麼選？<strong>市值型</strong>把獲利留在淨值裡複利、長期「總報酬」通常較高；<strong>高股息</strong>領到現金較有感、波動稍小但成長性較弱。年輕、追求資產最大化常偏市值型；想要穩定現金流偏高股息。沒有標準答案，回到你的目標。</p></div>
+   <div class="callout warn"><div class="ic">!</div><p>挑 ETF 別只看殖利率與名字，務必看：<span class="kw">追蹤的指數是什麼、內扣總費用率、規模與成交量、成分股</span>。名字很潮但費用高、規模小的要小心。</p></div>`,
+   terms:[{t:'市值型 ETF',en:'Market-cap ETF',d:'依公司市值加權追蹤大盤，賺取市場整體報酬，如 0050。'},
+          {t:'高股息 ETF',en:'High-dividend ETF',d:'篩選高殖利率成分股、訴求現金配息的 ETF，如 0056。'},
+          {t:'追蹤誤差',en:'Tracking Error',d:'ETF 實際報酬與所追蹤指數之間的差距，越小越好。'}]},
+
+  {id:'m6l3', title:'美股怎麼買：複委託 vs 海外券商',
+   body:`<p>想買 VOO、QQQ、AAPL 等美股，台灣人有兩條路：</p>
+   <table class="cmp"><tr><th></th><th>複委託（國內券商）</th><th>海外券商（如 IB 等）</th></tr>
+   <tr><td>怎麼運作</td><td>透過台灣券商「下單給海外」，中文介面、台幣或美元</td><td>直接在美國券商開戶、入金</td></tr>
+   <tr><td>手續費</td><td>較高，常有最低收費門檻</td><td>很低甚至免佣</td></tr>
+   <tr><td>方便/門檻</td><td>開戶簡單、報稅單純、有中文客服</td><td>需自行海外匯款、英文介面、稅務自理</td></tr>
+   <tr><td>適合</td><td>大額、長期持有、求省事</td><td>頻繁交易、金額大、願意自理</td></tr></table>
+   <div class="callout note"><div class="ic">i</div><p>如果只是想長期定期買美國大盤，<strong>更省事的選項是直接買「台灣掛牌的美股 ETF」</strong>（如 00646、00662）或國內券商的美股定期定額，連複委託/匯款都免了，缺點是標的選擇較少、可能有匯率與追蹤差異。</p></div>`,
+   terms:[{t:'複委託',en:'Sub-brokerage',d:'透過國內券商間接下單買賣海外股票的服務，方便但費用較高。'},
+          {t:'海外券商',en:'Foreign Brokerage',d:'直接在國外（如美國）開立的證券帳戶，費用低但需自理匯款與稅務。'}]},
+
+  {id:'m6l4', title:'美股 ETF：VOO、VTI、QQQ',
+   body:`<p>美股 ETF 是全球指數化投資的核心。幾個經典類型（說明用途，非推薦）：</p>
+   <table class="cmp"><tr><th>代號</th><th>追蹤</th><th>定位</th></tr>
+   <tr><td class="num">VOO / SPY</td><td>S&amp;P 500</td><td>美國前 500 大企業，最主流的「美股大盤」</td></tr>
+   <tr><td class="num">VTI</td><td>美國全市場</td><td>幾乎涵蓋全美上市公司，更分散</td></tr>
+   <tr><td class="num">VT</td><td>全球股市</td><td>一檔買下全世界股票，極致分散</td></tr>
+   <tr><td class="num">QQQ</td><td>那斯達克 100</td><td>科技權重高、成長性強、波動較大</td></tr>
+   <tr><td class="num">BND / AGG</td><td>美國綜合債券</td><td>配置債券部位用</td></tr></table>
+   <div class="callout tip"><div class="ic">✓</div><p>很多長期投資人的「懶人組合」就是：一檔全市場股票 ETF（VTI 或 VT）＋ 一檔債券 ETF（BND），照自己的股債比配置、定期定額、每年再平衡。簡單、低費、難被打敗。</p></div>
+   <p>美股 ETF 內扣費用普遍極低（VOO/VTI 約 0.03%），這是它相較台股部分 ETF 的一大優勢——長期下來費用差距會被複利放大。</p>`,
+   terms:[{t:'S&P 500',en:'S&P 500 Index',d:'涵蓋美國 500 家大型企業的指數，是美股最具代表性的大盤指標。'},
+          {t:'全市場 ETF',en:'Total Market ETF',d:'追蹤整個市場（如 VTI 追蹤全美股）的高度分散 ETF。'}]},
+
+  {id:'m6l5', title:'費用與稅：偷走報酬的兩隻手',
+   body:`<p>報酬是亮點，但<strong>費用與稅</strong>會在暗處持續啃食你的複利。把它們搞懂，等於額外賺一截。</p>
+   <h4>交易與持有成本</h4>
+   <ul><li><strong>手續費</strong>：台股買賣各約 0.1425%（券商常打折）；美股複委託較高、海外券商低。</li><li><strong>證交稅</strong>：台股<em>賣出</em>時課 0.3%（ETF 為 0.1%）。</li><li><strong>內扣費用</strong>：基金/ETF 每年從淨值默默扣，<em>看不到卻最致命</em>。1% vs 0.1% 的差距，30 年複利下來可能差掉一大截資產。</li></ul>
+   <h4>股息與所得稅</h4>
+   <ul><li><strong>台股股息</strong>：併入綜所稅（可抵減）或選分離課稅 28%；另有二代健保補充保費（單筆股利達門檻時）。</li><li><strong>美股股息</strong>：對台灣人預扣 <span class="kw">30%</span>（無法退）。<em>資本利得</em>（價差）對非美國稅務居民通常不課美國稅。</li><li><strong>海外所得</strong>：台灣對個人海外所得有最低稅負制的免稅額門檻，超過才需申報。</li></ul>
+   <div class="callout tip"><div class="ic">✓</div><p>實務心法：① 優先壓低<strong>內扣費用</strong>（選低費 ETF）；② 減少不必要的頻繁交易（省手續費＋證交稅）；③ 美股偏好賺「價差」的成長型、對「高股息」要把 30% 預扣算進去再比較。費用與稅省下來的，都是穩穩到手的報酬。</p></div>
+   <div class="callout note"><div class="ic">i</div><p>稅制細節會調整、且因個人狀況而異，本課僅為觀念說明。實際申報請以財政部最新規定為準，金額較大時建議諮詢會計師或合格稅務人員。</p></div>`,
+   terms:[{t:'證券交易稅',en:'Securities Transaction Tax',d:'台股賣出時課徵，一般股票 0.3%、ETF 0.1%。'},
+          {t:'股息預扣稅',en:'Dividend Withholding Tax',d:'美股股息發放時對外國投資人預先扣繳，對台灣人為 30%。'},
+          {t:'最低稅負制',en:'AMT (海外所得)',d:'台灣對個人海外所得設免稅門檻，超過部分納入基本稅額計算。'}]},
+  ]
+},
+];
+
+/* ============ STATE & RENDER ============ */
+let current={view:'home', mid:null, lid:null};
+const lessonIndex=[]; // flat list for prev/next
+MODULES.forEach(m=>m.lessons.forEach(l=>lessonIndex.push({mid:m.id,lid:l.id,m,l})));
+
+const $=s=>document.querySelector(s);
+const nav=$('#nav'), content=$('#content');
+
+function totalLessons(){return lessonIndex.length;}
+function doneCount(){return Object.keys(store.data).filter(k=>store.data[k]).length;}
+
+/* ---- Sidebar ---- */
+function renderNav(){
+  let h=`<div class="sec-label">總覽</div>`;
+  h+=`<div class="nav-item ${current.view==='home'?'active':''}" data-view="home">
+    <span class="ix">⌂</span><span>學習地圖</span></div>`;
+  h+=`<div class="sec-label">課程模組</div>`;
+  MODULES.forEach(m=>{
+    const allDone=m.lessons.every(l=>store.data[l.id]);
+    const isActiveM=current.mid===m.id;
+    h+=`<div class="nav-item ${isActiveM&&current.view==='lesson'?'':''} ${allDone?'done':''}" data-mod="${m.id}">
+      <span class="ix">${m.num}</span><span>${m.title}</span>
+      <svg class="check" viewBox="0 0 24 24" fill="none" stroke="#5FBF93" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div>`;
+    m.lessons.forEach(l=>{
+      const active=current.view==='lesson'&&current.lid===l.id;
+      const done=store.data[l.id];
+      h+=`<div class="nav-sub ${active?'active':''} ${done?'done':''}" data-lid="${l.id}" data-mid="${m.id}">
+        <span class="dot"></span><span>${l.title}</span></div>`;
+    });
+  });
+  h+=`<div class="sec-label">工具與查詢</div>`;
+  h+=`<div class="nav-item ${current.view==='tools'?'active':''}" data-view="tools"><span class="ix">⚙</span><span>計算工具</span></div>`;
+  h+=`<div class="nav-item ${current.view==='glossary'?'active':''}" data-view="glossary"><span class="ix">≡</span><span>術語詞典</span></div>`;
+  nav.innerHTML=h;
+  // progress
+  const pct=Math.round(doneCount()/totalLessons()*100);
+  $('#progPct').textContent=pct+'%';
+  $('#progBar').style.width=pct+'%';
+}
+
+/* ---- Router ---- */
+function go(view,mid,lid){
+  current={view,mid:mid||null,lid:lid||null};
+  renderNav();
+  if(view==='home') renderHome();
+  else if(view==='lesson') renderLesson(lid);
+  else if(view==='tools') renderTools();
+  else if(view==='glossary') renderGlossary();
+  content.scrollTop=0;
+  window.scrollTo({top:0,behavior:'instant'in window?'instant':'auto'});
+  closeSidebar();
+}
+
+/* ---- Home ---- */
+function renderHome(){
+  $('#crumb').textContent='首頁 / 學習地圖';
+  let cards='';
+  MODULES.forEach(m=>{
+    const total=m.lessons.length;
+    const done=m.lessons.filter(l=>store.data[l.id]).length;
+    const pct=Math.round(done/total*100);
+    const complete=done===total;
+    cards+=`<div class="mcard ${complete?'complete':''}" data-mod="${m.id}">
+      <div class="node">${complete?'✓':m.num}</div>
+      <div class="mc-body">
+        <h3>${m.title}</h3>
+        <div class="mc-sub">${m.subtitle}</div>
+        <div class="mc-meta">
+          <span>${done}/${total} 課</span>
+          <div class="mbar"><i style="width:${pct}%"></i></div>
+          <span>${pct}%</span>
+        </div>
+      </div></div>`;
+  });
+  content.innerHTML=`
+  <div class="page show">
+    <div class="hero">
+      <div class="eyebrow">系統學習 · 台股＋美股</div>
+      <h2>看懂數字，<br>把錢放對<em>位置</em>。</h2>
+      <p>從基礎觀念、三大財報、基本面估值，到資產配置與台美股實務。六個模組，照順序走，建立你自己的投資判斷力。</p>
+      <div class="hero-stats">
+        <div class="s"><div class="n">6</div><div class="l">學習模組</div></div>
+        <div class="s"><div class="n">${totalLessons()}</div><div class="l">課程單元</div></div>
+        <div class="s"><div class="n">${GLOSS.length}</div><div class="l">收錄術語</div></div>
+        <div class="s"><div class="n">${doneCount()}</div><div class="l">已完成</div></div>
+      </div>
+    </div>
+    <div class="map-title">學習地圖</div>
+    <div class="map-sub">建議由上而下依序學習，每課讀完可標記完成、追蹤進度。</div>
+    <div class="map">${cards}</div>
+    <div class="tools-cta">
+      <div class="tcard gold" data-view="tools">
+        <h4>計算工具</h4><p>複利／定期定額試算、估值快算、資產配置模擬，把觀念變成數字。</p>
+        <div class="arr">開始試算 →</div>
+      </div>
+      <div class="tcard" data-view="glossary">
+        <h4>術語詞典</h4><p>${GLOSS.length} 個投資與財報術語，中英對照、可即時搜尋。看報告卡關時隨查。</p>
+        <div class="arr">查詢術語 →</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---- Lesson ---- */
+function renderLesson(lid){
+  const idx=lessonIndex.findIndex(x=>x.lid===lid);
+  const {m,l}=lessonIndex[idx];
+  const lessonNumInMod=m.lessons.findIndex(x=>x.id===lid)+1;
+  $('#crumb').textContent=`${m.title} / 第 ${lessonNumInMod} 課`;
+  const done=!!store.data[lid];
+  let terms='';
+  if(l.terms&&l.terms.length){
+    terms=`<div class="terms-block"><h4>本課關鍵術語</h4>`;
+    l.terms.forEach(t=>{terms+=`<div class="tdef"><div class="tt">${t.t}<span class="en">${t.en}</span></div><div class="tdd">${t.d}</div></div>`;});
+    terms+=`</div>`;
+  }
+  const next=lessonIndex[idx+1];
+  const prev=lessonIndex[idx-1];
+  content.innerHTML=`<div class="page show">
+    <div class="lesson-head">
+      <div class="meta">模組 ${m.num} · ${m.title} — 第 ${lessonNumInMod} 課</div>
+      <h2>${l.title}</h2>
+    </div>
+    <div class="lesson-body">${l.body}</div>
+    ${terms}
+    <div class="lesson-foot">
+      <button class="btn mark ${done?'done':''}" id="markBtn">
+        ${done?'✓ 已完成':'標記完成'}
+      </button>
+      ${prev?`<button class="btn ghost" id="prevBtn">← 上一課</button>`:''}
+      ${next?`<button class="btn next" id="nextBtn">下一課：${next.l.title} →</button>`:`<button class="btn next" data-view="home" id="homeBtn">回學習地圖 →</button>`}
+    </div>
+  </div>`;
+  $('#markBtn').onclick=()=>{
+    store.data[lid]=!store.data[lid]; store.save();
+    renderLesson(lid); renderNav();
+  };
+  if(prev) $('#prevBtn').onclick=()=>go('lesson',prev.mid,prev.lid);
+  if(next) $('#nextBtn').onclick=()=>go('lesson',next.mid,next.lid);
+  else $('#homeBtn').onclick=()=>go('home');
+}
+
+/* ---- Glossary (aggregate from lessons) ---- */
+const GLOSS=[];
+MODULES.forEach(m=>m.lessons.forEach(l=>{(l.terms||[]).forEach(t=>{
+  GLOSS.push({...t, src:m.title});
+})}));
+GLOSS.sort((a,b)=>a.t.localeCompare(b.t,'zh-Hant'));
+
+function renderGlossary(filter){
+  $('#crumb').textContent='術語詞典';
+  const q=(filter||'').trim().toLowerCase();
+  const list=GLOSS.filter(g=> !q || g.t.toLowerCase().includes(q)||g.en.toLowerCase().includes(q)||g.d.toLowerCase().includes(q));
+  let items=list.map(g=>`<div class="gitem">
+    <div class="gt">${g.t}<span class="en">${g.en}</span><span class="src">${g.src}</span></div>
+    <div class="gd">${g.d}</div></div>`).join('');
+  if(!list.length) items=`<div class="gloss-empty">找不到「${filter}」相關的術語。試試別的關鍵字？</div>`;
+  content.innerHTML=`<div class="page show">
+    <div class="gloss-head"><h2>術語詞典</h2><p>看財報、讀研究報告卡在名詞時，這裡查得到。中英對照、附出處模組。</p></div>
+    <div class="gloss-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="glossInput" placeholder="搜尋中文、英文或解釋…" value="${filter||''}">
+    </div>
+    <div class="gloss-count">${list.length} / ${GLOSS.length} 個術語</div>
+    <div class="glist">${items}</div>
+  </div>`;
+  const gi=$('#glossInput');
+  gi.oninput=e=>{ liveGloss(e.target.value); };
+  // keep focus
+  gi.focus(); gi.setSelectionRange(gi.value.length,gi.value.length);
+}
+function liveGloss(v){
+  const q=v.trim().toLowerCase();
+  const list=GLOSS.filter(g=> !q || g.t.toLowerCase().includes(q)||g.en.toLowerCase().includes(q)||g.d.toLowerCase().includes(q));
+  $('.gloss-count').textContent=`${list.length} / ${GLOSS.length} 個術語`;
+  const wrap=$('.glist');
+  if(!list.length){wrap.innerHTML=`<div class="gloss-empty">找不到「${v}」相關的術語。試試別的關鍵字？</div>`;return;}
+  wrap.innerHTML=list.map(g=>`<div class="gitem">
+    <div class="gt">${g.t}<span class="en">${g.en}</span><span class="src">${g.src}</span></div>
+    <div class="gd">${g.d}</div></div>`).join('');
+}
+
+/* ---- Tools ---- */
+function fmt(n){return Math.round(n).toLocaleString('en-US');}
+function renderTools(){
+  $('#crumb').textContent='計算工具';
+  content.innerHTML=`<div class="page show">
+    <div class="tools-head"><h2>計算工具</h2><p>把模組裡的觀念變成可以玩的數字。所有結果僅供教育試算，非投資建議。</p></div>
+
+    <div class="tool">
+      <h3>① 複利 / 定期定額試算</h3>
+      <div class="th-sub">看看「時間 × 報酬率」滾出的差距。對應模組 01。</div>
+      <div class="grid2">
+        <div class="field"><label>初始本金（元）</label><input type="number" id="c_init" value="100000"></div>
+        <div class="field"><label>每月投入（元）</label><input type="number" id="c_month" value="10000"></div>
+        <div class="field"><label>年化報酬率（%）</label><input type="number" id="c_rate" value="8" step="0.5"></div>
+        <div class="field"><label>投資年數</label><input type="number" id="c_years" value="20"></div>
+      </div>
+      <div class="tool-out">
+        <div class="lbl">期末總資產</div><div class="big" id="c_final">—</div>
+        <div class="row">
+          <div class="it"><div class="n" id="c_in">—</div><div class="k">累積投入本金</div></div>
+          <div class="it"><div class="n" id="c_gain">—</div><div class="k">複利賺到</div></div>
+          <div class="it"><div class="n" id="c_x">—</div><div class="k">資產／本金倍數</div></div>
+        </div>
+        <canvas id="c_chart"></canvas>
+      </div>
+    </div>
+
+    <div class="tool">
+      <h3>② 估值快算（P/E · P/B · 殖利率）</h3>
+      <div class="th-sub">輸入股價與財報數字，快速判斷貴不貴。對應模組 04。</div>
+      <div class="grid2">
+        <div class="field"><label>股價（元）</label><input type="number" id="v_price" value="200"></div>
+        <div class="field"><label>EPS 每股盈餘（元）</label><input type="number" id="v_eps" value="10" step="0.1"></div>
+        <div class="field"><label>每股淨值（元）</label><input type="number" id="v_bv" value="80" step="0.1"></div>
+        <div class="field"><label>每股現金股利（元）</label><input type="number" id="v_div" value="6" step="0.1"></div>
+      </div>
+      <div class="tool-out">
+        <div class="row">
+          <div class="it"><div class="n" id="v_pe">—</div><div class="k">本益比 P/E（倍）</div></div>
+          <div class="it"><div class="n" id="v_pb">—</div><div class="k">股價淨值比 P/B（倍）</div></div>
+          <div class="it"><div class="n" id="v_yield">—</div><div class="k">現金殖利率</div></div>
+          <div class="it"><div class="n" id="v_payout">—</div><div class="k">配息率</div></div>
+        </div>
+      </div>
+      <p class="disclaimer" id="v_hint"></p>
+    </div>
+
+    <div class="tool">
+      <h3>③ 資產配置模擬</h3>
+      <div class="th-sub">拉動股債比例，看預期報酬與波動如何變化（採歷史長期假設值）。對應模組 05。</div>
+      <div class="field"><label>股票比例 <span class="v"><span id="a_sv">60</span>% 股 / <span id="a_bv2">40</span>% 債</span></label>
+        <input type="range" id="a_slider" min="0" max="100" value="60" step="5"></div>
+      <div class="alloc-bar" id="a_bar"></div>
+      <div class="tool-out">
+        <div class="row">
+          <div class="it"><div class="n" id="a_ret">—</div><div class="k">預期年化報酬</div></div>
+          <div class="it"><div class="n" id="a_vol">—</div><div class="k">預期波動（風險）</div></div>
+          <div class="it"><div class="n" id="a_worst">—</div><div class="k">壞年份概估（−1 標準差）</div></div>
+          <div class="it"><div class="n" id="a_style">—</div><div class="k">風格</div></div>
+        </div>
+      </div>
+      <p class="disclaimer">假設：股票年化 8% / 波動 16%，債券年化 3.5% / 波動 5%，股債相關性 0.1。此為簡化教學模型，非未來報酬保證。</p>
+    </div>
+  </div>`;
+  initCompound(); initValuation(); initAllocation();
+}
+
+function initCompound(){
+  const ids=['c_init','c_month','c_rate','c_years'];
+  function calc(){
+    const init=+$('#c_init').value||0, m=+$('#c_month').value||0,
+          r=(+$('#c_rate').value||0)/100, yrs=Math.max(0,Math.min(60,+$('#c_years').value||0));
+    const mr=r/12; let bal=init; const series=[init]; let invested=init;
+    for(let i=1;i<=yrs*12;i++){ bal=bal*(1+mr)+m; invested+=m; if(i%12===0) series.push(bal); }
+    $('#c_final').textContent=fmt(bal)+' 元';
+    $('#c_in').textContent=fmt(invested);
+    $('#c_gain').textContent=fmt(bal-invested);
+    $('#c_x').textContent=(invested>0?(bal/invested).toFixed(2):'—')+'x';
+    drawChart(series,invested,yrs);
+  }
+  function drawChart(series,invested,yrs){
+    const cv=$('#c_chart'); if(!cv)return;
+    const dpr=window.devicePixelRatio||1; const W=cv.clientWidth, H=180;
+    cv.width=W*dpr; cv.height=H*dpr; const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
+    ctx.clearRect(0,0,W,H);
+    const max=Math.max(...series,1); const pad=8;
+    const stepX=(W-pad*2)/Math.max(1,series.length-1);
+    // invested baseline (per year linear-ish)
+    ctx.beginPath();
+    series.forEach((v,i)=>{ const x=pad+i*stepX, y=H-pad-(v/max)*(H-pad*2); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    const grad=ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'rgba(176,128,31,.35)'); grad.addColorStop(1,'rgba(176,128,31,0)');
+    ctx.lineTo(W-pad,H-pad); ctx.lineTo(pad,H-pad); ctx.closePath(); ctx.fillStyle=grad; ctx.fill();
+    ctx.beginPath();
+    series.forEach((v,i)=>{ const x=pad+i*stepX, y=H-pad-(v/max)*(H-pad*2); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.strokeStyle='#E8C463'; ctx.lineWidth=2.5; ctx.stroke();
+  }
+  ids.forEach(id=>$('#'+id).addEventListener('input',calc));
+  window.addEventListener('resize',()=>{ if(current.view==='tools')calc(); });
+  calc();
+}
+
+function initValuation(){
+  const ids=['v_price','v_eps','v_bv','v_div'];
+  function calc(){
+    const p=+$('#v_price').value||0, eps=+$('#v_eps').value||0, bv=+$('#v_bv').value||0, dv=+$('#v_div').value||0;
+    const pe=eps>0?(p/eps):null, pb=bv>0?(p/bv):null, yld=p>0?(dv/p*100):null, payout=eps>0?(dv/eps*100):null;
+    $('#v_pe').textContent=pe!=null?pe.toFixed(1):'—（EPS≤0）';
+    $('#v_pb').textContent=pb!=null?pb.toFixed(2):'—';
+    $('#v_yield').textContent=yld!=null?yld.toFixed(2)+'%':'—';
+    $('#v_payout').textContent=payout!=null?payout.toFixed(0)+'%':'—（EPS≤0）';
+    let hint=[];
+    if(pe!=null){ if(pe<10)hint.push('P/E 偏低：可能便宜，也可能市場預期衰退（小心價值陷阱）。'); else if(pe>30)hint.push('P/E 偏高：需要高成長來支撐，否則偏貴。'); }
+    if(payout!=null&&payout>100) hint.push('⚠ 配息率超過 100%：發的比賺的多，在吃老本，不可持續。');
+    if(eps<=0) hint.push('EPS ≤ 0 時本益比失效，改看 P/B 與現金流。');
+    $('#v_hint').textContent=hint.length?('提示：'+hint.join(' ')):'記得：這些倍數要跟「同業」與「公司自身歷史」比較才有意義。';
+  }
+  ids.forEach(id=>$('#'+id).addEventListener('input',calc)); calc();
+}
+
+function initAllocation(){
+  const sl=$('#a_slider');
+  const ER_S=8, ER_B=3.5, V_S=16, V_B=5, CORR=0.1;
+  function calc(){
+    const s=(+sl.value)/100, b=1-s;
+    $('#a_sv').textContent=Math.round(s*100); $('#a_bv2').textContent=Math.round(b*100);
+    const ret=s*ER_S+b*ER_B;
+    const varr=(s*s*V_S*V_S)+(b*b*V_B*V_B)+(2*s*b*CORR*V_S*V_B);
+    const vol=Math.sqrt(varr);
+    const worst=ret-vol;
+    $('#a_ret').textContent=ret.toFixed(1)+'%';
+    $('#a_vol').textContent=vol.toFixed(1)+'%';
+    $('#a_worst').textContent=worst.toFixed(1)+'%';
+    let style= s>=0.8?'積極': s>=0.55?'穩健': s>=0.35?'平衡偏保守':'保守';
+    $('#a_style').textContent=style;
+    const bar=$('#a_bar');
+    bar.innerHTML=`<div class="seg" style="width:${s*100}%;background:#1A3A56">${s>0.12?'股 '+Math.round(s*100)+'%':''}</div>
+      <div class="seg" style="width:${b*100}%;background:#B0801F">${b>0.12?'債 '+Math.round(b*100)+'%':''}</div>`;
+  }
+  sl.addEventListener('input',calc); calc();
+}
+
+/* ---- Search in topbar -> glossary ---- */
+$('#topSearch').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){ go('glossary'); setTimeout(()=>{const gi=$('#glossInput'); if(gi){gi.value=e.target.value; liveGloss(e.target.value);} },30); }
+});
+$('#topSearch').addEventListener('input',e=>{
+  if(current.view==='glossary'){ const gi=$('#glossInput'); if(gi){gi.value=e.target.value; liveGloss(e.target.value);} }
+});
+
+/* ---- Sidebar interactions ---- */
+nav.addEventListener('click',e=>{
+  const item=e.target.closest('[data-view],[data-lid],[data-mod]');
+  if(!item)return;
+  if(item.dataset.lid){ go('lesson',item.dataset.mid,item.dataset.lid); }
+  else if(item.dataset.mod){ const m=MODULES.find(x=>x.id===item.dataset.mod); go('lesson',m.id,m.lessons[0].id); }
+  else if(item.dataset.view){ go(item.dataset.view); }
+});
+content.addEventListener('click',e=>{
+  const c=e.target.closest('[data-mod],[data-view]');
+  if(!c)return;
+  if(c.dataset.mod){ const m=MODULES.find(x=>x.id===c.dataset.mod); go('lesson',m.id,m.lessons[0].id); }
+  else if(c.dataset.view){ go(c.dataset.view); }
+});
+
+/* ---- Mobile sidebar ---- */
+const sidebar=$('#sidebar'), overlay=$('#overlay');
+function openSidebar(){sidebar.classList.add('open');overlay.classList.add('show');}
+function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('show');}
+$('#menuBtn').onclick=openSidebar; overlay.onclick=closeSidebar;
+
+/* ---- Init ---- */
+go('home');
+</script>
+</body>
+</html>
