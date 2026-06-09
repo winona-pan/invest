@@ -346,6 +346,26 @@ table.hold .act{text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:#A8331F}
 
+/* ---------- K-line teaching guide ---------- */
+.guide{margin:4px 0 20px}
+.guide-btn{width:100%;text-align:left;font-family:var(--body);background:var(--gold-bg);border:1px solid var(--gold-soft);color:#7A5A12;border-radius:11px;padding:13px 18px;font-size:15px;font-weight:600;cursor:pointer;transition:.15s;display:flex;justify-content:space-between;align-items:center}
+.guide-btn:hover{border-color:var(--gold)}
+.guide-panel{display:none;border:1px solid var(--line);border-radius:12px;margin-top:8px;padding:22px;background:var(--surface);box-shadow:var(--shadow)}
+.guide-panel.open{display:block;animation:fade .3s ease}
+.guide-panel h4{font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px}
+.guide-panel .gsub{font-size:13.5px;color:var(--ink-3);margin-bottom:14px}
+.candle-diagram{width:100%;max-width:520px;height:auto;display:block;margin:4px auto 14px}
+.candle-diagram text{font-family:var(--body);fill:var(--ink);font-size:13px}
+.candle-diagram .lead{stroke:#C2CBD0;stroke-width:1}
+.guide-mini{display:flex;gap:26px;justify-content:center;margin:6px 0 20px;flex-wrap:wrap}
+.guide-mini .gm{text-align:center;font-size:13px;color:var(--ink-2);line-height:1.5}
+.guide-mini .gm b{display:block;font-size:14px;color:var(--ink)}
+.guide-cards{display:grid;gap:11px;margin-bottom:18px}
+.gcard{display:flex;gap:13px;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:14px 16px}
+.gcard .gi{flex-shrink:0;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-family:var(--mono);font-weight:600;color:#fff;font-size:14px}
+.gcard h5{font-size:15px;font-weight:700;margin-bottom:3px}
+.gcard p{font-size:14px;color:var(--ink-2);margin:0;line-height:1.65}
+
 @media(max-width:980px){
   .sidebar{transform:translateX(-100%);transition:transform .3s;box-shadow:6px 0 30px rgba(0,0,0,.3)}
   .sidebar.open{transform:none}
@@ -1306,6 +1326,60 @@ function toast(msg,err){
   clearTimeout(toastEl._t); toastEl._t=setTimeout(()=>toastEl.className='toast',2200);
 }
 
+/* ============ K-LINE TEACHING GUIDE (shared) ============ */
+let guideOpen=false;
+function toggleGuide(){
+  guideOpen=!guideOpen;
+  const p=document.getElementById('guidePanel'), b=document.getElementById('guideArrow');
+  if(p)p.classList.toggle('open',guideOpen);
+  if(b)b.textContent=guideOpen?'▲':'▼';
+}
+function klineGuideHTML(){
+  return `<div class="guide">
+    <button class="guide-btn" onclick="toggleGuide()"><span>看不懂 K 線圖？點我看完整圖解教學</span><span id="guideArrow">${guideOpen?'▲':'▼'}</span></button>
+    <div class="guide-panel ${guideOpen?'open':''}" id="guidePanel">
+      <h4>一根 K 棒在說什麼</h4>
+      <div class="gsub">每一根 K 棒 = 那一天的價格故事，記錄四個價：開盤、收盤、最高、最低。</div>
+      <svg class="candle-diagram" viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg">
+        <line class="lead" x1="62" y1="68" x2="198" y2="68"/>
+        <line class="lead" x1="62" y1="137" x2="178" y2="137"/>
+        <line class="lead" x1="62" y1="206" x2="198" y2="206"/>
+        <line class="lead" x1="202" y1="40" x2="298" y2="44"/>
+        <line class="lead" x1="222" y1="95" x2="298" y2="98"/>
+        <line class="lead" x1="222" y1="180" x2="298" y2="182"/>
+        <line class="lead" x1="202" y1="235" x2="298" y2="238"/>
+        <line x1="200" y1="40" x2="200" y2="95" stroke="#C0392B" stroke-width="2.5"/>
+        <line x1="200" y1="180" x2="200" y2="235" stroke="#C0392B" stroke-width="2.5"/>
+        <rect x="180" y="95" width="40" height="85" fill="#C0392B" rx="1"/>
+        <text x="16" y="72">上影線</text>
+        <text x="16" y="142">實體</text>
+        <text x="16" y="210">下影線</text>
+        <text x="302" y="48">最高價</text>
+        <text x="302" y="102">收盤價</text>
+        <text x="302" y="186">開盤價</text>
+        <text x="302" y="242">最低價</text>
+        <text x="378" y="48" fill="#7A8893" font-size="11">當天衝到的最高</text>
+        <text x="378" y="102" fill="#C0392B" font-size="11">紅K：收在上方</text>
+        <text x="378" y="186" fill="#7A8893" font-size="11">這天從這裡開出</text>
+        <text x="378" y="242" fill="#7A8893" font-size="11">當天殺到的最低</text>
+      </svg>
+      <div class="guide-mini">
+        <div class="gm"><svg width="54" height="96" viewBox="0 0 54 96"><line x1="27" y1="8" x2="27" y2="28" stroke="#C0392B" stroke-width="2.5"/><rect x="15" y="28" width="24" height="44" fill="#C0392B"/><line x1="27" y1="72" x2="27" y2="90" stroke="#C0392B" stroke-width="2.5"/></svg><b>紅K（陽線）</b>收盤 &gt; 開盤<br>→ 這天上漲</div>
+        <div class="gm"><svg width="54" height="96" viewBox="0 0 54 96"><line x1="27" y1="8" x2="27" y2="28" stroke="#1E7D52" stroke-width="2.5"/><rect x="15" y="28" width="24" height="44" fill="#1E7D52"/><line x1="27" y1="72" x2="27" y2="90" stroke="#1E7D52" stroke-width="2.5"/></svg><b>綠K（陰線）</b>收盤 &lt; 開盤<br>→ 這天下跌</div>
+      </div>
+      <div class="guide-cards">
+        <div class="gcard"><div class="gi" style="background:var(--red)">紅綠</div><div><h5>紅K 漲、綠K 跌（台股慣例）</h5><p>收盤比開盤高就畫紅、低就畫綠。<strong>注意：美股習慣相反（綠漲紅跌）</strong>，但本站統一用台股的「紅漲綠跌」，看台美股都一致。</p></div></div>
+        <div class="gcard"><div class="gi" style="background:var(--gold)">體</div><div><h5>實體與影線</h5><p>中間粗的「實體」是開盤到收盤之間；上下細線是「影線」，代表當天一度衝到的高低點。<strong>長上影</strong>＝衝高被壓回（賣壓重）；<strong>長下影</strong>＝殺低被買回（有人接）。</p></div></div>
+        <div class="gcard"><div class="gi" style="background:var(--blue)">MA</div><div><h5>均線（MA5 / MA20 / MA60）</h5><p>把最近 N 天的收盤價平均、連成一條線。MA20 ≈ 近一個月的平均成本。<strong>股價站上均線、均線往上 = 偏多</strong>；當 MA5＞MA20＞MA60 由上而下排好且向上，叫「多頭排列」，是多方掌握的訊號。</p></div></div>
+        <div class="gcard"><div class="gi" style="background:var(--green)">量</div><div><h5>成交量（下方柱子）</h5><p>當天成交了多少，代表人氣與換手。<strong>放量上漲</strong>比較有力道；量縮上漲、或爆量卻不漲要留意。看圖時「量」和「價」要一起看。</p></div></div>
+        <div class="gcard"><div class="gi" style="background:var(--navy)">數</div><div><h5>下面那排指標卡</h5><p>就是把上面這些用數字講一次：趨勢方向（均線斜率往上/下）、均線排列、現在離 MA20 多遠、近 20 日漲跌、波動度、量能比。掃一眼就知道「現在偏多還偏空、力道強不強」。</p></div></div>
+        <div class="gcard"><div class="gi" style="background:#8A4FA0">線</div><div><h5>那條虛線（趨勢延伸示意）</h5><p>只是把最近走勢用直線往前拉，假設「照這個斜率走會到哪」。<strong>真實市場不會乖乖走直線，所以它是示意、不是預測</strong>——拿來體會「天真外推」有多不可靠就好。</p></div></div>
+      </div>
+      <div class="callout tip"><div class="ic">✓</div><p><strong>三步驟看圖：</strong>① 先看<strong>均線方向</strong>抓大趨勢（往上/往下/糾結）→ ② 再看<strong>K 棒實體與成交量</strong>判斷當下力道 → ③ 心裡有個底就好，<strong>別拿來賭單日漲跌</strong>。技術圖是幫你管理進出與風險的工具，不是水晶球。搭配模組 3–4 的基本面一起看更穩。</p></div>
+    </div>
+  </div>`;
+}
+
 /* ============ TREND ANALYSIS PAGE ============ */
 let trendSel='2330', trendMkt='tw';
 function renderTrend(){
@@ -1320,6 +1394,7 @@ function renderTrend(){
       <button class="chip ${trendMkt==='us'?'on':''}" data-mkt="us">美股</button>
     </div>
     <div class="stk-select" id="trendStk">${list.map(s=>`<button class="stk-btn ${s.sym===trendSel?'on':''}" data-sym="${s.sym}"><span class="sb-name">${s.name}</span><span class="sb-sym">${s.sym}</span></button>`).join('')}</div>
+    ${klineGuideHTML()}
     <div id="trendBody"></div>
     <div class="trade-box" style="margin-top:8px">
       <h3>接真實資料（選填）</h3>
@@ -1426,9 +1501,11 @@ function drawProjection(canvas,series,dates){
 }
 
 /* ============ SECTOR COMPARISON PAGE ============ */
+let sectorMkt='tw';
 function renderSector(){
   $('#crumb').textContent='市場分析 / 產業比較';
-  const secs={}; STOCKS.forEach(s=>{(secs[s.sec]=secs[s.sec]||[]).push(s);});
+  const pool=STOCKS.filter(s=>s.mkt===sectorMkt);
+  const secs={}; pool.forEach(s=>{(secs[s.sec]=secs[s.sec]||[]).push(s);});
   const order=['半導體','半導體 Semi','Tech 科技','電子製造','金融','金融 Financials','消費 Consumer','電信','傳產塑化','ETF'];
   const keys=Object.keys(secs).sort((a,b)=>{const ia=order.indexOf(a),ib=order.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
   const median=(arr)=>{const a=arr.filter(x=>x!=null).sort((x,y)=>x-y);if(!a.length)return null;const m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2;};
@@ -1457,12 +1534,40 @@ function renderSector(){
         ${rows}</table></div>
     </div>`;
   });
+  const mktLabel = sectorMkt==='tw'?'台股':'美股';
   content.innerHTML=`<div class="page show">
-    <div class="mkt-head"><h2>產業比較</h2><p>同產業放在一起比，估值才有意義——這是模組 04 的「相對估值」實戰。</p></div>
-    <div class="banner"><div class="ic">i</div><div>所有財務數字為<strong>示意範例</strong>，非即時或精確值，用來練習「怎麼比」。實際投資請以最新財報為準。記得：<strong>跨產業直接比 P/E 沒意義</strong>（金融、ETF、成長股天生不同）。</div></div>
+    <div class="mkt-head"><h2>產業比較</h2><p>同產業放在一起比，估值才有意義——這是模組 04 的「相對估值」實戰。台股、美股分開比較。</p></div>
+    <div class="seg-pick">
+      <button class="chip ${sectorMkt==='tw'?'on':''}" data-smkt="tw">台股</button>
+      <button class="chip ${sectorMkt==='us'?'on':''}" data-smkt="us">美股</button>
+    </div>
+    <div class="guide">
+      <button class="guide-btn" onclick="toggleSecGuide()"><span>這些欄位是什麼意思？點我看欄位說明</span><span id="secArrow">${secGuideOpen?'▲':'▼'}</span></button>
+      <div class="guide-panel ${secGuideOpen?'open':''}" id="secGuidePanel">
+        <h4>怎麼讀這張表</h4>
+        <div class="gsub">由左到右，先看「貴不貴」(P/E、P/B)，再看「好不好」(ROE、毛利、淨利)，最後看「領多少息」(殖利率)。</div>
+        <div class="guide-cards">
+          <div class="gcard"><div class="gi" style="background:var(--gold)">PE</div><div><h5>P/E 本益比</h5><p>股價是一年 EPS 的幾倍、幾年回本。<strong>同產業中偏低=相對便宜</strong>，但要小心是不是被看壞（價值陷阱）。</p></div></div>
+          <div class="gcard"><div class="gi" style="background:var(--gold)">PB</div><div><h5>P/B 股價淨值比</h5><p>股價相對「每股家底」的倍數。金融、傳產特別看這個；P/B 越低相對越便宜。</p></div></div>
+          <div class="gcard"><div class="gi" style="background:var(--blue)">ROE</div><div><h5>ROE 股東權益報酬率</h5><p>公司用股東的錢每年滾出多少報酬。<strong>越高代表賺錢效率越好</strong>，長期 15%+ 算優等生。</p></div></div>
+          <div class="gcard"><div class="gi" style="background:var(--green)">率</div><div><h5>毛利率 / 淨利率</h5><p>每 100 元營收，產品本身賺幾元(毛利)、最後落袋幾元(淨利)。<strong>越高代表越有定價權、護城河</strong>。</p></div></div>
+          <div class="gcard"><div class="gi" style="background:var(--navy)">息</div><div><h5>殖利率</h5><p>用現價買，一年大約能領回幾%的現金股利。偏好現金流的人會看，但高不一定好（要看配息率與填息）。</p></div></div>
+        </div>
+        <div class="callout warn"><div class="ic">!</div><p><strong>關鍵原則：跨產業不要直接比。</strong>半導體、金融、ETF、成長股天生的 P/E、毛利率差很大，硬比沒意義。所以這頁台美股、各產業都分開——只跟「同類」比才公平。</p></div>
+      </div>
+    </div>
+    <div class="banner"><div class="ic">i</div><div>目前顯示<strong>${mktLabel}</strong>。所有財務數字為<strong>示意範例</strong>，用來練習「怎麼比」，非即時或精確值，實際投資請以最新財報為準。</div></div>
     ${html}
     <div class="callout tip"><div class="ic">✓</div><p>比較步驟：① 先確認在<strong>同產業</strong>；② 看 P/E、P/B 是否低於同業（便宜？還是有隱憂）；③ 配合 ROE、毛利率判斷「便宜是否合理」——高 ROE＋高毛利的公司值得較高估值。好公司＋好價格，才是目標。</p></div>
   </div>`;
+  document.querySelectorAll('.seg-pick .chip').forEach(b=>b.onclick=()=>{sectorMkt=b.dataset.smkt;renderSector();});
+}
+let secGuideOpen=false;
+function toggleSecGuide(){
+  secGuideOpen=!secGuideOpen;
+  const p=document.getElementById('secGuidePanel'), a=document.getElementById('secArrow');
+  if(p)p.classList.toggle('open',secGuideOpen);
+  if(a)a.textContent=secGuideOpen?'▲':'▼';
 }
 
 /* ============ PAPER TRADING PAGE ============ */
@@ -1506,6 +1611,7 @@ function renderPaper(){
       <div class="chart-meta"><span class="lg"><i style="background:#2E5E8C"></i>MA5</span><span class="lg"><i style="background:#B0801F"></i>MA20</span><span class="lg"><i style="background:#8A4FA0"></i>MA60</span><span>· 紅漲綠跌 · 模擬</span></div>
       <div class="chart-wrap"><canvas class="kline" id="pkc"></canvas><div class="k-tip" id="pkt"></div></div>
     </div>
+    ${klineGuideHTML()}
     <div class="trade-box">
       <h3>下單　<span style="font-weight:400;font-size:14px;color:var(--ink-3)">${s.name} (${s.sym})</span></h3>
       <div class="trade-row">
